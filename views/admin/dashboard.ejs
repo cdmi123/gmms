@@ -1,0 +1,169 @@
+<%- include('../partials/header') %>
+    <div class="admin-wrapper admin-light-body">
+        <%- include('../partials/sidebar') %>
+            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+            <div class="admin-main-content">
+                <!-- Mobile Nav -->
+                <div class="admin-mobile-nav">
+                    <div class="d-flex align-items-center">
+                        <button class="btn p-0 me-3" onclick="toggleSidebar()">
+                            <i class="bi bi-list fs-3"></i>
+                        </button>
+                        <h5 class="mb-0 fw-bold">GMMS Admin</h5>
+                    </div>
+                    <div class="dropdown">
+                        <div class="rounded-circle bg-light-blue text-blue d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px;" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4 d-none d-lg-flex">
+                        <div>
+                            <h2 class="text-blue fw-bold mb-0">Dashboard Overview</h2>
+                            <p class="text-muted small">System performance and active member metrics</p>
+                        </div>
+                        <div class="date-display text-muted small fw-bold">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <%= new Date().toLocaleDateString('en-US', { weekday: 'long' , year: 'numeric' ,
+                                month: 'long' , day: 'numeric' }) %>
+                        </div>
+                    </div>
+
+                    <!-- Stats Grid -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-xl-3 col-md-6">
+                            <div class="admin-light-card admin-light-stats-card h-100">
+                                <div class="lbl">Active Members</div>
+                                <div class="val">
+                                    <%= stats.memberCount %>
+                                </div>
+                                <div class="small text-success mt-2">
+                                    <i class="bi bi-arrow-up-short"></i> Total active users
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="admin-light-card admin-light-stats-card h-100"
+                                style="border-left-color: #ffc107;">
+                                <div class="lbl">Pending Collections</div>
+                                <div class="val" style="color: #ffc107;">
+                                    <%= stats.pendingPaymentsCount %>
+                                </div>
+                                <div class="small text-muted mt-2">Current round status</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="admin-light-card admin-light-stats-card h-100"
+                                style="border-left-color: #28a745;">
+                                <div class="lbl">Total Draws</div>
+                                <div class="val" style="color: #28a745;">
+                                    <%= stats.totalDrawsCompleted %>
+                                </div>
+                                <div class="small text-muted mt-2">Historical luck draws</div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6">
+                            <div class="admin-light-card admin-light-stats-card h-100"
+                                style="border-left-color: #dc3545;">
+                                <div class="lbl">Total Collected</div>
+                                <div class="val" style="color: #dc3545;">₹<%= stats.totalPaidAmount %>
+                                </div>
+                                <div class="small text-muted mt-2">Overall collection</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <!-- Collections Overview -->
+                        <div class="col-md-7">
+                            <div class="admin-light-card h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h6 class="text-blue fw-bold mb-0">Active Round Overivew</h6>
+                                    <a href="/admin/rounds" class="btn btn-sm btn-light-blue text-blue fw-bold">View
+                                        Rounds</a>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table admin-light-table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Member</th>
+                                                <th>ID</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% membersOverview.forEach(p=> { %>
+                                                <tr>
+                                                    <td class="fw-bold">
+                                                        <%= p.memberId ? p.memberId.name : 'Deleted Member' %>
+                                                    </td>
+                                                    <td class="text-muted">
+                                                        ID-<%= p.memberId ? p.memberId._id.toString().slice(-5) : 'N/A'
+                                                            %>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span
+                                                            class="badge <%= p.status === 'paid' ? 'bg-success' : 'bg-warning text-dark' %> rounded-pill px-3 py-1">
+                                                            <%= p.status.toUpperCase() %>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                                    <% if (membersOverview.length===0) { %>
+                                                        <tr>
+                                                            <td colspan="3" class="text-center text-muted py-4">No data
+                                                                available for current round.</td>
+                                                        </tr>
+                                                        <% } %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Winners -->
+                        <div class="col-md-5">
+                            <div class="admin-light-card mb-4 bg-light-blue border-0 h-100">
+                                <h6 class="text-blue fw-bold mb-3">Recent Winners</h6>
+                                <% if (recentDraws && recentDraws.length> 0) { %>
+                                    <% recentDraws.forEach(draw=> { %>
+                                        <% if (draw) { %>
+                                            <div
+                                                class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded-3 shadow-sm">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="rounded-circle bg-blue me-3"
+                                                        style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="bi bi-trophy-fill text-white"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="fw-bold">
+                                                            <%= (draw.winnerId && draw.winnerId.name) ?
+                                                                draw.winnerId.name : 'Deleted Member' %>
+                                                        </div>
+                                                        <div class="text-muted x-small">
+                                                            <%= draw.drawDate ? draw.drawDate.toLocaleDateString()
+                                                                : 'Unknown Date' %>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="text-blue fw-bold">
+                                                    <%= draw.goldWeight || 0 %>g
+                                                </div>
+                                            </div>
+                                            <% } %>
+                                                <% }) %>
+                                                    <% } else { %>
+                                                        <div class="text-center py-4 text-muted small">No recent winners
+                                                            found.</div>
+                                                        <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <%- include('../partials/footer') %>

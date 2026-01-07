@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GMMS - User Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body class="dashboard-body">
+
+    <div class="dashboard-container">
+        <!-- Header Section -->
+        <header class="dash-header animate-up">
+            <div class="user-dash-logo">
+                <i class="bi bi-gear-wide-connected text-warning animate-float"
+                    style="font-size: 2rem; display: inline-block;"></i>
+                <div>
+                    <h1>GOLD MANDAL</h1>
+                    <span>USER DASHBOARD</span>
+                </div>
+            </div>
+
+            <div class="header-info-strip">
+                <div class="info-box last-winner-box shadow-sm">
+                    <% if (currentDraw) { %>
+                        <div class="box-label">Last Winner <i class="bi bi-trophy-fill text-warning ms-1"></i></div>
+                        <div class="box-value text-truncate">
+                            <%= currentDraw.winnerId.name %>
+                        </div>
+                        <div class="box-sub">
+                            <%= currentDraw.winnerId.phone && currentDraw.winnerId.phone.length>= 5 ?
+                                currentDraw.winnerId.phone.substring(0, 5) + '-XXXXX' : 'N/A' %>
+                        </div>
+                        <% } %>
+                </div>
+                <div class="info-box biscuits-box shadow-sm">
+                    <div class="box-label">Remaining Biscuits
+                        <div class="biscuit-icons d-inline-flex ms-2">
+                            <i class="bi bi-box-seam-fill"></i>
+                            <i class="bi bi-stack ms-1"></i>
+                        </div>
+                    </div>
+                    <div class="box-value justify-content-between d-flex small">
+                        <% if (locals.stocks) { %>
+                            <% stocks.forEach(stock=> { %>
+                                <span>
+                                    <%= stock.quantity %> × <strong>
+                                            <%= stock.weight %>g
+                                        </strong>
+                                </span>
+                                <% }) %>
+                                    <% } %>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <h2 class="welcome-msg animate-up" style="animation-delay: 0.1s;">Welcome to Gold Mandal!</h2>
+
+        <!-- Main Dashboard Section (Moves to Top) -->
+        <div class="main-dashboard-box glass-effect animate-scale mb-5" style="animation-delay: 0.2s;">
+            <div class="box-header">
+                <h3>Current Draw - <%= activeRound ? 'Round ' + activeRound.roundNumber : 'No Active Round' %>
+                </h3>
+            </div>
+
+            <div class="dashboard-layout">
+                <!-- Winner Display -->
+                <div class="winner-display-card shadow-lg">
+                    <% if (currentDraw) { %>
+                        <div class="draw-badge">Draw <%= stats.totalDrawsInRound %> of 3</div>
+                        <img src="/images/gold_biscuits.png" alt="Gold Biscuits" class="gold-biscuit-img animate-float">
+                        <div class="gold-weight">
+                            <%= currentDraw.goldWeight %>g Gold
+                        </div>
+                        <div class="winner-label">Winner!</div>
+                        <h2 class="winner-name text-truncate w-100">
+                            <%= currentDraw.winnerId.name %>
+                        </h2>
+                        <p class="winner-uid">User ID: <%= currentDraw.winnerId.phone &&
+                                currentDraw.winnerId.phone.length>= 5 ? currentDraw.winnerId.phone.substring(0, 5) +
+                                '-XXXXX' : 'N/A' %></p>
+                        <% } else { %>
+                            <div class="py-5">
+                                <i class="bi bi-hourglass-split text-warning"
+                                    style="font-size: 3.5rem; display: block;"></i>
+                                <h3 class="mt-3">Waiting for next Draw...</h3>
+                            </div>
+                            <% } %>
+
+                                <div class="winner-stats-row mt-4">
+                                    <div class="w-stat">
+                                        <span class="w-label">Total Collection</span>
+                                        <span class="w-value" id="w-stat-collection">₹<%=
+                                                stats.totalCollectionAmount.toLocaleString() %>
+                                        </span>
+                                    </div>
+                                    <div class="w-stat">
+                                        <span class="w-label">Total Paid</span>
+                                        <span class="w-value" id="w-stat-paid">₹<%=
+                                                stats.totalPaidAmount.toLocaleString() %></span>
+                                    </div>
+                                    <div class="w-stat">
+                                        <span class="w-label">Rounds Completed</span>
+                                        <span class="w-value" id="w-stat-rounds">
+                                            <%= stats.roundsCompleted %>
+                                        </span>
+                                    </div>
+                                </div>
+                </div>
+
+                <!-- History Column -->
+                <div class="history-col">
+                    <div class="history-card-header d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="mb-0">Recent Draw History</h4>
+                        <i class="bi bi-clock-history text-muted"></i>
+                    </div>
+                    <div class="history-items-container">
+                        <% recentDraws.forEach((draw, index)=> { %>
+                            <div class="history-strip-card animate-up"
+                                style="animation-delay: <%= 0.3 + (index * 0.1) %>s">
+                                <div class="strip-info">
+                                    <div class="strip-draw-no">Draw <%= recentDraws.length - index %>
+                                            <%= index===0 ? '(Current)' : '' %>
+                                    </div>
+                                    <div class="strip-time">
+                                        <%= draw.drawDate.toLocaleDateString() %>
+                                    </div>
+                                    <div class="strip-winner-name text-truncate" style="max-width: 150px;">
+                                        <%= draw.winnerId.name %>
+                                    </div>
+                                    <div class="strip-winner-uid small opacity-75">
+                                        ID: <%= draw.winnerId.phone ? draw.winnerId.phone.substring(0, 5) + 'XXX'
+                                            : 'N/A' %>
+                                    </div>
+                                </div>
+                                <div class="strip-image">
+                                    <img src="/images/gold_biscuits.png" alt="Gold">
+                                </div>
+                            </div>
+                            <% }); %>
+                                <% if (recentDraws.length===0) { %>
+                                    <div class="text-center py-4 text-muted small opacity-50">No history available</div>
+                                    <% } %>
+                    </div>
+
+                    <div class="total-draws-summary mt-3 animate-up" style="animation-delay: 0.6s;">
+                        <div class="coin-icon">
+                            <i class="bi bi-database-fill-check text-blue fs-4"></i>
+                        </div>
+                        <div class="summary-info">
+                            <div class="summary-val" id="summary-total-draws">
+                                <%= stats.totalDrawsCompleted %>
+                            </div>
+                            <div class="summary-label">Total Draws Overall</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Stats Grid (NOW AT BOTTOM) -->
+        <div class="stats-grid mb-5">
+            <div class="stats-card card-glass animate-up" style="animation-delay: 0.7s;">
+                <div class="icon-circle mb-3">
+                    <i class="bi bi-currency-rupee text-warning fs-4"></i>
+                </div>
+                <div class="value" id="stat-per-member">₹<%= stats.perMemberAmount.toLocaleString() %>
+                </div>
+                <div class="label text-muted-light">Per Member Amount</div>
+            </div>
+            <div class="stats-card card-glass animate-up" style="animation-delay: 0.8s;">
+                <div class="icon-circle mb-3">
+                    <i class="bi bi-people-fill text-info fs-4"></i>
+                </div>
+                <div class="value" id="stat-total-members">
+                    <%= stats.totalMembers %>
+                </div>
+                <div class="label text-muted-light">Total Members</div>
+            </div>
+            <div class="stats-card card-glass animate-up" style="animation-delay: 0.9s;">
+                <div class="icon-circle mb-3">
+                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                </div>
+                <div class="value" id="stat-paid-count">
+                    <%= stats.paidCount %> Paid
+                </div>
+                <div class="label text-muted-light">Member Payments</div>
+            </div>
+            <div class="stats-card card-glass animate-up" style="animation-delay: 1.0s;">
+                <div class="icon-circle mb-3">
+                    <i class="bi bi-dice-5-fill text-danger fs-4"></i>
+                </div>
+                <div class="value" id="stat-draws-round">
+                    <%= stats.totalDrawsInRound %> Draws
+                </div>
+                <div class="label text-muted-light">Total Draws in Round</div>
+            </div>
+        </div>
+
+        <!-- Member Payments List -->
+        <div class="main-dashboard-box glass-effect animate-scale mb-5" style="animation-delay: 1.1s;">
+            <div class="box-header mb-3">
+                <h3 class="text-warning"><i class="bi bi-people-fill me-2"></i>Member Payments - Current Round</h3>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0" id="payments-table">
+                    <thead>
+                        <tr>
+                            <th>Member Name</th>
+                            <th>Amount</th>
+                            <th>Status/Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="payments-list-body">
+                        <% if (locals.payments && payments.length> 0) { %>
+                            <% payments.forEach(payment=> { %>
+                                <tr id="payment-row-<%= payment._id %>">
+                                    <td>
+                                        <%= payment.memberId.name %>
+                                    </td>
+                                    <td>₹<%= payment.amount %>
+                                    </td>
+                                    <td>
+                                        <% if (payment.status==='paid' ) { %>
+                                            <span class="badge bg-success rounded-pill"><i
+                                                    class="bi bi-check-circle-fill me-1"></i>PAID</span>
+                                            <% } else { %>
+                                                <span class="badge bg-warning text-dark rounded-pill"><i
+                                                        class="bi bi-clock me-1"></i>PENDING</span>
+                                                <% } %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">No active round or members
+                                                found.</td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="modal fade" id="celebrationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content bg-transparent border-0">
+                <div class="modal-body p-0 d-flex flex-column align-items-center justify-content-center text-center"
+                    style="background: rgba(0,0,0,0.9);">
+
+                    <div id="user-suspense-container" class="w-100">
+                        <div class="spinner-border text-warning mb-5" role="status" style="width: 6rem; height: 6rem;">
+                        </div>
+                        <h1 class="display-3 text-white fw-bold animate__animated animate__pulse animate__infinite">
+                            Fingers Crossed...<br>Selecting Winner...</h1>
+                    </div>
+
+                    <div id="user-winner-reveal-container" class="d-none w-100 position-relative">
+                        <div class="ribbon-banner mb-5 animate__animated animate__zoomInDown">
+                            <h1 class="display-1 fw-bold text-white text-uppercase"
+                                style="text-shadow: 0 0 20px #FFD700;">Congratulations!</h1>
+                        </div>
+
+                        <div class="winner-circle animate__animated animate__zoomIn">
+                            <i class="bi bi-trophy-fill text-warning mb-3" style="font-size: 5rem;"></i>
+                            <h2 class="winner-title text-white mb-2">Winner #<span id="u-winner-index">1</span></h2>
+                            <h1 class="winner-name-display display-2 fw-bold text-info mb-3" id="u-winner-name">Name
+                            </h1>
+                            <p class="fs-2 text-white opacity-75" id="u-winner-phone">Phone</p>
+                        </div>
+                    </div>
+
+                    <div id="user-all-winners-list" class="d-none w-100 mt-5 container" style="max-width: 600px;">
+                        <h2 class="text-warning mb-4 fw-bold">🎉 Today's Lucky Winners 🎉</h2>
+                        <ul class="list-group rounded shadow-lg" id="u-winners-ul">
+                        </ul>
+                        <div class="text-center mt-5">
+                            <button class="btn btn-warning btn-lg rounded-pill px-5 fw-bold shadow-lg text-dark"
+                                onclick="location.reload()">
+                                <i class="bi bi-arrow-repeat me-2"></i> Refresh Dashboard
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <%- include('../partials/footer') %>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+        <script>
+            // socket is initialized in public/js/main.js
+            if (typeof socket !== 'undefined') {
+                socket.on('dashboardUpdate', async (data) => {
+                    // Classic update handler (fallback or other updates)
+                    handleDashboardUpdate(data);
+                });
+
+                socket.on('drawReveal', async (data) => {
+                    console.log('🎉 Draw Reveal Triggered:', data);
+                    if (data.winners && data.winners.length > 0) {
+                        startCelebrationSequence(data.winners);
+                    }
+                });
+            }
+
+            async function handleDashboardUpdate(data) {
+                console.log('Received update:', data);
+                try {
+                    const response = await fetch('/user/api/dashboard-data');
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const dashboardData = await response.json();
+                    updateDashboard(dashboardData);
+                } catch (error) {
+                    console.error('Error fetching dashboard data:', error);
+                }
+            }
+
+            async function startCelebrationSequence(winners) {
+                const celebrationModal = new bootstrap.Modal(document.getElementById('celebrationModal'));
+                const suspenseContainer = document.getElementById('user-suspense-container');
+                const winnerReveal = document.getElementById('user-winner-reveal-container');
+                const winnerNameEl = document.getElementById('u-winner-name');
+                const winnerPhoneEl = document.getElementById('u-winner-phone');
+                const winnerIndexEl = document.getElementById('u-winner-index');
+                const allWinnersList = document.getElementById('user-all-winners-list');
+                const winnersUl = document.getElementById('u-winners-ul');
+
+                celebrationModal.show();
+
+                for (let i = 0; i < winners.length; i++) {
+                    const winner = winners[i];
+
+                    // 1. Suspense Phase
+                    suspenseContainer.classList.remove('d-none');
+                    winnerReveal.classList.add('d-none');
+
+                    await new Promise(r => setTimeout(r, 5000)); // Suspense Wait
+
+                    // 2. Reveal Phase
+                    suspenseContainer.classList.add('d-none');
+                    winnerReveal.classList.remove('d-none');
+
+                    winnerIndexEl.innerText = i + 1;
+                    winnerNameEl.innerText = winner.winnerId.name;
+                    winnerPhoneEl.innerText = formatPhone(winner.winnerId.phone);
+
+                    // FIRECRACKERS / CONFETTI
+                    fireConfetti();
+
+                    // Add to log
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center mb-2 rounded';
+                    li.innerHTML = `<span class="fs-5"><span class="text-warning me-3">#${i + 1}</span> ${winner.winnerId.name}</span> <i class="bi bi-trophy-fill text-warning"></i>`;
+                    winnersUl.appendChild(li);
+
+                    // Show winner for 5 seconds including confetti
+                    await new Promise(r => setTimeout(r, 5000));
+                }
+
+                // 3. Final Summary
+                winnerReveal.classList.add('d-none');
+                allWinnersList.classList.remove('d-none');
+                fireConfetti(); // One last big blast
+            }
+
+            function fireConfetti() {
+                var duration = 3 * 1000;
+                var animationEnd = Date.now() + duration;
+                var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+                function random(min, max) { return Math.random() * (max - min) + min; }
+
+                var interval = setInterval(function () {
+                    var timeLeft = animationEnd - Date.now();
+
+                    if (timeLeft <= 0) {
+                        return clearInterval(interval);
+                    }
+
+                    var particleCount = 50 * (timeLeft / duration);
+
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
+                }, 250);
+            }
+
+            function updateDashboard(data) {
+                // ... strict update logic from before ...
+                // Simplified here to avoid big duplicate block, re-using existing logic structure if possible
+                // But since I replaced the whole block, I need to put the updateDashboard logic back if I removed it.
+                // Wait, I am removing lines 252-440. I must ensure updateDashboard IS included.
+                // 1. Update Stats Grid
+                updateText('#stat-per-member', '₹' + data.stats.perMemberAmount.toLocaleString());
+                updateText('#stat-total-members', data.stats.totalMembers);
+                updateText('#stat-paid-count', data.stats.paidCount + ' Paid');
+                updateText('#stat-draws-round', data.stats.totalDrawsInRound + ' Draws');
+
+                // 2. Update Total Summary
+                updateText('#summary-total-draws', data.stats.totalDrawsCompleted);
+                updateText('#w-stat-collection', '₹' + data.stats.totalCollectionAmount.toLocaleString());
+                updateText('#w-stat-paid', '₹' + data.stats.totalPaidAmount.toLocaleString());
+                updateText('#w-stat-rounds', data.stats.roundsCompleted);
+
+                // 3. Update Current Draw
+                const winnerCard = document.querySelector('.winner-display-card');
+                const boxHeader = document.querySelector('.box-header h3');
+
+                if (data.activeRound) {
+                    boxHeader.innerText = 'Current Draw - Round ' + data.activeRound.roundNumber;
+                } else {
+                    boxHeader.innerText = 'Current Draw - No Active Round';
+                }
+
+                if (data.currentDraw) {
+                    // We have a winner/draw active
+                    const waitingMsg = winnerCard.querySelector('.bi-hourglass-split');
+                    if (waitingMsg) {
+                        winnerCard.innerHTML = `
+                     <div class="draw-badge">Draw ${data.stats.totalDrawsInRound} of 3</div>
+                     <img src="/images/gold_biscuits.png" alt="Gold Biscuits" class="gold-biscuit-img animate-float">
+                     <div class="gold-weight">${data.currentDraw.goldWeight}g Gold</div>
+                     <div class="winner-label">Winner!</div>
+                     <h2 class="winner-name text-truncate w-100">${data.currentDraw.winnerId.name}</h2>
+                     <p class="winner-uid">User ID: ${formatPhone(data.currentDraw.winnerId.phone)}</p>
+                     ${getStatsRowHTML(data.stats)}
+                  `;
+
+                        // Header Update
+                        const lastWinnerBox = document.querySelector('.last-winner-box');
+                        if (lastWinnerBox) {
+                            lastWinnerBox.innerHTML = `
+                         <div class="box-label">Last Winner <i class="bi bi-trophy-fill text-warning ms-1"></i></div>
+                         <div class="box-value text-truncate">${data.currentDraw.winnerId.name}</div>
+                         <div class="box-sub">${formatPhone(data.currentDraw.winnerId.phone)}</div>
+                      `
+                        }
+
+                    } else {
+                        updateText('.draw-badge', `Draw ${data.stats.totalDrawsInRound} of 3`);
+                        updateText('.gold-weight', `${data.currentDraw.goldWeight}g Gold`);
+                        updateText('.winner-name', data.currentDraw.winnerId.name);
+                        updateText('.winner-uid', `User ID: ${formatPhone(data.currentDraw.winnerId.phone)}`);
+                    }
+                } else {
+                    const isWaiting = winnerCard.querySelector('.bi-hourglass-split');
+                    if (!isWaiting) {
+                        winnerCard.innerHTML = `
+                     <div class="py-5">
+                         <i class="bi bi-hourglass-split text-warning" style="font-size: 3.5rem; display: block;"></i>
+                         <h3 class="mt-3">Waiting for next Draw...</h3>
+                     </div>
+                     ${getStatsRowHTML(data.stats)}
+                  `;
+                    }
+                }
+
+                // 4. Update History
+                const historyContainer = document.querySelector('.history-items-container');
+                if (data.recentDraws && data.recentDraws.length > 0) {
+                    let historyHTML = '';
+                    data.recentDraws.forEach((draw, index) => {
+                        historyHTML += `
+                    <div class="history-strip-card animate-up" style="animation-delay: 0s">
+                        <div class="strip-info">
+                            <div class="strip-draw-no">Draw ${data.stats.totalDrawsCompleted - index} ${index === 0 ? '(Current)' : ''}</div>
+                            <div class="strip-time">${new Date(draw.drawDate).toLocaleDateString()}</div>
+                            <div class="strip-winner-name text-truncate" style="max-width: 150px;">${draw.winnerId.name}</div>
+                            <div class="strip-winner-uid small opacity-75">ID: ${formatPhone(draw.winnerId.phone, 3)}</div>
+                        </div>
+                        <div class="strip-image">
+                            <img src="/images/gold_biscuits.png" alt="Gold">
+                        </div>
+                    </div>
+                    `;
+                    });
+                    historyContainer.innerHTML = historyHTML;
+                } else {
+                    historyContainer.innerHTML = '<div class="text-center py-4 text-muted small opacity-50">No history available</div>';
+                }
+
+                // 5. Update Stock
+                const stockBox = document.querySelector('.biscuits-box .box-value');
+                if (data.stocks && data.stocks.length > 0) {
+                    let stockHTML = '';
+                    data.stocks.forEach(stock => {
+                        stockHTML += `<span>${stock.quantity} × <strong>${stock.weight}g</strong></span>`;
+                    });
+                    stockBox.innerHTML = stockHTML;
+                }
+
+                // 6. Payments
+                const paymentsBody = document.getElementById('payments-list-body');
+                if (paymentsBody && data.payments) {
+                    if (data.payments.length > 0) {
+                        let paymentsHTML = '';
+                        data.payments.forEach(payment => {
+                            let actionHTML = payment.status === 'paid' ?
+                                '<span class="badge bg-success rounded-pill"><i class="bi bi-check-circle-fill me-1"></i>PAID</span>' :
+                                '<span class="badge bg-warning text-dark rounded-pill"><i class="bi bi-clock me-1"></i>PENDING</span>';
+
+                            paymentsHTML += `
+                            <tr id="payment-row-${payment._id}">
+                                <td>${payment.memberId.name}</td>
+                                <td>₹${payment.amount}</td>
+                                <td>${actionHTML}</td>
+                            </tr>
+                        `;
+                        });
+                        paymentsBody.innerHTML = paymentsHTML;
+                    } else {
+                        paymentsBody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No active round or members found.</td></tr>';
+                    }
+                }
+            }
+
+            function updateText(selector, text) {
+                const el = document.querySelector(selector);
+                if (el) el.innerText = text;
+            }
+
+            function formatPhone(phone, hiddenCount = 5) {
+                if (!phone || phone.length < 5) return 'N/A';
+                if (hiddenCount === 3) return phone.substring(0, 5) + 'XXX';
+                return phone.substring(0, 5) + '-XXXXX';
+            }
+
+            function getStatsRowHTML(stats) {
+                return `
+            <div class="winner-stats-row mt-4">
+            <div class="w-stat">
+                <span class="w-label">Total Collection</span>
+                <span class="w-value" id="w-stat-collection">₹${stats.totalCollectionAmount.toLocaleString()}</span>
+            </div>
+            <div class="w-stat">
+                <span class="w-label">Total Paid</span>
+                <span class="w-value" id="w-stat-paid">₹${stats.totalPaidAmount.toLocaleString()}</span>
+            </div>
+            <div class="w-stat">
+                <span class="w-label">Rounds Completed</span>
+                <span class="w-value" id="w-stat-rounds">${stats.roundsCompleted}</span>
+            </div>
+        </div>`;
+            }
+        </script>
+</body>
+
+</html>

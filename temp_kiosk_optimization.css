@@ -1,0 +1,174 @@
+/* 
+   --------------------------------------------------------------------------------------
+   VIEWPORT OPTIMIZATION FOR >= 1280x1024 (KIOSK MODE)
+   Ensures fit on single screen without scrolling
+   --------------------------------------------------------------------------------------
+*/
+@media (min-width: 1024px) {
+
+    html,
+    body.dashboard-body {
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    .dashboard-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 5px 30px 10px 30px;
+        /* Highly Reduced Vertical Padding */
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Compact Header */
+    .dash-header {
+        margin-bottom: 5px;
+        flex-shrink: 0;
+        padding: 5px 0;
+    }
+
+    .animate-float {
+        font-size: 1.8rem !important;
+        /* Smaller logo icon */
+    }
+
+    .user-dash-logo h1 {
+        font-size: 1.6rem;
+    }
+
+    .welcome-msg {
+        font-size: 1.2rem;
+        margin-bottom: 5px !important;
+        flex-shrink: 0;
+        display: none;
+        /* Hide welcome message on compact desktop to save space */
+    }
+
+    /* Main Dashboard Box - Flexible height */
+    .main-dashboard-box {
+        flex: 1;
+        /* Takes all available remaining space */
+        margin-bottom: 15px !important;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        /* Prevent internal scroll if possible */
+        padding: 15px 25px;
+        /* Compact padding */
+    }
+
+    .box-header {
+        margin-bottom: 10px;
+        flex-shrink: 0;
+    }
+
+    .dashboard-layout {
+        flex: 1;
+        /* Fill the box */
+        gap: 20px;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .winner-display-card {
+        padding: 15px;
+        /* Compact padding */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+    }
+
+    .gold-biscuit-img {
+        width: 100px;
+        /* Smaller image */
+        margin: 5px auto;
+    }
+
+    .winner-name {
+        font-size: 2rem;
+        margin-bottom: 0;
+    }
+
+    .winner-uid {
+        margin-bottom: 10px;
+    }
+
+    .winner-stats-row {
+        padding: 10px;
+        margin-top: 5px !important;
+    }
+
+    .w-value {
+        font-size: 1.2rem;
+    }
+
+    .w-label {
+        font-size: 0.7rem;
+    }
+
+    /* History Column */
+    .history-col {
+        height: 100%;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+    .history-card-header {
+        margin-bottom: 10px;
+    }
+
+    .history-items-container {
+        gap: 8px;
+    }
+
+    .history-strip-card {
+        padding: 8px 12px;
+    }
+
+    .strip-image img {
+        width: 45px;
+    }
+
+    /* Stats Grid - Fixed at bottom */
+    .stats-grid {
+        flex-shrink: 0;
+        margin-bottom: 0px !important;
+        gap: 15px;
+        height: 110px;
+        /* Fixed height container */
+    }
+
+    .stats-card {
+        height: 100%;
+        padding: 15px;
+    }
+
+    /* Ensure Glass cards fit */
+    .card-glass {
+        height: 100%;
+        padding: 10px 15px;
+        justify-content: center;
+    }
+
+    .card-glass .icon-circle {
+        width: 35px;
+        height: 35px;
+        margin-bottom: 5px;
+    }
+
+    .card-glass .icon-circle i {
+        font-size: 1rem !important;
+    }
+
+    .card-glass .value {
+        font-size: 1.4rem;
+        margin-bottom: 0;
+    }
+
+    .card-glass .label {
+        font-size: 0.75rem;
+    }
+}
