@@ -46,13 +46,13 @@
     </header>
 
     <!-- Mobile Top Bar (Stories Style) -->
-    <div class="mobile-stories-bar d-lg-none py-3 px-2 overflow-auto d-flex gap-3">
+    <div class="mobile-stories-bar d-lg-none">
         <div class="story-circle active">
             <div class="ring"><i class="bi bi-star-fill text-gold"></i></div>
             <span>Live</span>
         </div>
         <% if (recentDraws && recentDraws.length> 0) { %>
-            <% recentDraws.slice(0, 5).forEach(d=> { %>
+            <% recentDraws.slice(0, 10).forEach(d=> { %>
                 <div class="story-circle">
                     <div class="ring"><img src="/images/gold_biscuits.png" alt="Winner"></div>
                     <span>

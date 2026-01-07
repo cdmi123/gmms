@@ -1,33 +1,55 @@
 <%- include('../partials/header') %>
-    <div class="admin-wrapper admin-light-body">
+
+    <div class="admin-wrapper">
         <%- include('../partials/sidebar') %>
             <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-            <div class="admin-main-content">
-                <!-- Mobile Nav -->
-                <div class="admin-mobile-nav">
+            <div class="admin-main-content" id="mainContent">
+                <!-- Top Navbar -->
+                <nav class="admin-navbar d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <button class="btn p-0 me-3" onclick="toggleSidebar()">
-                            <i class="bi bi-list fs-3"></i>
+                        <button class="btn btn-outline-dark me-3 d-lg-block d-none" onclick="toggleDesktopSidebar()">
+                            <i class="bi bi-list"></i>
                         </button>
-                        <h5 class="mb-0 fw-bold">GMMS Admin</h5>
+                        <button class="btn btn-outline-dark me-3 d-lg-none" onclick="toggleSidebar()">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <div>
+                            <h5 class="mb-0 fw-bold">Lucky Draws</h5>
+                        </div>
                     </div>
-                </div>
+
+                    <div class="dropdown">
+                        <div class="rounded-circle bg-blue text-white d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; cursor: pointer;" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="/admin/logout"><i
+                                        class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </nav>
 
                 <div class="p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h2 class="text-blue fw-bold mb-0">Lucky Draws</h2>
+                            <h2 class="fw-bold mb-0">Lucky Draws</h2>
                             <p class="text-muted small">Initialize and view history of lucky draws</p>
                         </div>
-                        <button class="btn btn-blue shadow" data-bs-toggle="modal" data-bs-target="#startDrawModal">
-                            <i class="bi bi-gift-fill me-2"></i> <span class="d-none d-sm-inline">New Luck Draw</span>
+                        <button class="btn btn-primary px-4 rounded-pill shadow" data-bs-toggle="modal"
+                            data-bs-target="#startDrawModal">
+                            <i class="bi bi-gift-fill me-2"></i>New Luck Draw
                         </button>
                     </div>
 
-                    <div class="admin-light-card">
+                    <div class="admin-table-container p-4">
                         <div class="table-responsive">
-                            <table class="table admin-light-table mb-0">
+                            <table class="table admin-table table-hover align-middle">
                                 <thead>
                                     <tr>
                                         <th>Round</th>
@@ -39,17 +61,25 @@
                                 <tbody>
                                     <% draws.forEach(draw=> { %>
                                         <tr>
-                                            <td class="text-muted fw-bold">R-<%= draw.roundId ? draw.roundId.roundNumber
-                                                    : 'N/A' %>
+                                            <td>
+                                                <span class="badge bg-blue-light text-blue rounded-pill px-3 py-2">
+                                                    R-<%= draw.roundId ? draw.roundId.roundNumber : 'N/A' %>
+                                                </span>
                                             </td>
-                                            <td class="fw-bold text-blue">
-                                                <i class="bi bi-star-fill text-warning me-2"></i>
-                                                <%= draw.winnerId ? draw.winnerId.name : 'Deleted Member' %>
+                                            <td>
+                                                <div class="fw-bold d-flex align-items-center">
+                                                    <div class="icon-sm bg-warning bg-opacity-10 text-warning rounded-circle me-3 d-flex align-items-center justify-content-center"
+                                                        style="width: 32px; height: 32px;">
+                                                        <i class="bi bi-trophy-fill" style="font-size: 0.8rem;"></i>
+                                                    </div>
+                                                    <%= draw.winnerId ? draw.winnerId.name : 'Deleted Member' %>
+                                                </div>
                                             </td>
-                                            <td class="text-blue fw-bold d-none d-md-table-cell">
+                                            <td class="fw-bold d-none d-md-table-cell">
                                                 <%= draw.goldWeight %>g
                                             </td>
                                             <td class="text-muted text-end">
+                                                <i class="bi bi-calendar-event me-2"></i>
                                                 <%= draw.drawDate.toLocaleDateString() %>
                                             </td>
                                         </tr>
@@ -74,38 +104,45 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg">
                 <form id="drawForm" onsubmit="handleDrawSubmit(event)">
-                    <div class="modal-header bg-blue text-white">
-                        <h5 class="modal-title fw-bold text-center w-100">Initialize Lucky Draw</h5>
+                    <div class="modal-header bg-dark text-white p-4">
+                        <h5 class="modal-title fw-bold">Initialize Lucky Draw</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body p-4 text-center">
                         <div class="mb-4">
-                            <i class="bi bi-dice-5 text-blue" style="font-size: 3rem;"></i>
-                            <p class="text-muted mt-2">The system will randomly pick an <b>Active Member</b> who has
-                                paid for the selected round.</p>
+                            <div class="icon-lg bg-blue-light text-blue rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center"
+                                style="width: 80px; height: 80px;">
+                                <i class="bi bi-dice-5 fs-1"></i>
+                            </div>
+                            <p class="text-muted">The system will randomly pick an <b>Active Member</b> who has paid for
+                                the selected round.</p>
                         </div>
                         <div class="mb-4 text-start">
-                            <label class="form-label text-muted fw-bold">Select Active Collection Round</label>
-                            <select class="form-select" name="roundId" required>
+                            <label class="form-label fw-bold">Collection Round</label>
+                            <select class="form-select py-2" name="roundId" required>
                                 <% rounds.filter(r=> r.status === 'collecting').forEach(r => { %>
                                     <option value="<%= r._id %>">Round <%= r.roundNumber %> (₹<%= r.targetAmount %>)
                                     </option>
                                     <% }) %>
                             </select>
                         </div>
-                        <div class="mb-2 text-start">
-                            <label class="form-label text-muted fw-bold">Gold Weight to Distribute (grams)</label>
-                            <input type="number" step="0.01" class="form-control" name="goldWeight"
-                                placeholder="e.g. 10" required>
-                        </div>
-                        <div class="mb-2 text-start">
-                            <label class="form-label text-muted fw-bold">Number of Winners</label>
-                            <input type="number" min="1" class="form-control" name="numberOfWinners" value="1" required>
+                        <div class="row g-3">
+                            <div class="col-6 text-start">
+                                <label class="form-label fw-bold">Gold Weight (g)</label>
+                                <input type="number" step="0.01" class="form-control py-2" name="goldWeight"
+                                    placeholder="e.g. 10" required>
+                            </div>
+                            <div class="col-6 text-start">
+                                <label class="form-label fw-bold">Num Winners</label>
+                                <input type="number" min="1" class="form-control py-2" name="numberOfWinners" value="1"
+                                    required>
+                            </div>
                         </div>
                     </div>
-                    <div class="modal-footer border-0 justify-content-center pb-4">
-                        <button type="submit" class="btn btn-blue px-5 rounded-pill shadow" id="btnSpin">
-                            <i class="bi bi-play-fill me-1"></i> PICK WINNER NOW
+                    <div class="modal-footer border-0 p-4 pt-0 justify-content-center">
+                        <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm py-2 fw-bold"
+                            id="btnSpin">
+                            <i class="bi bi-play-fill me-2"></i> PICK WINNER NOW
                         </button>
                     </div>
                 </form>
@@ -113,130 +150,130 @@
         </div>
     </div>
 
-
     <!-- Suspense Reveal Modal -->
     <div class="modal fade" id="suspenseModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 bg-dark text-white shadow-lg" style="min-height: 400px;">
+            <div class="modal-content border-0 bg-dark text-white shadow-lg"
+                style="min-height: 400px; border-radius: 20px;">
                 <div class="modal-body p-5 d-flex flex-column align-items-center justify-content-center text-center">
-
-                    <h2 class="text-warning fw-bold mb-5 display-4">🎉 Lucky Draw 🎉</h2>
+                    <h2 class="text-primary fw-bold mb-5 display-5"><i class="bi bi-stars me-2"></i>LUCKY DRAW<i
+                            class="bi bi-stars ms-2"></i></h2>
 
                     <div id="suspense-container" class="w-100">
-                        <div class="spinner-border text-info mb-4" role="status" style="width: 4rem; height: 4rem;">
-                        </div>
-                        <h3 class="animate__animated animate__pulse animate__infinite">Selecting Winner...</h3>
+                        <div class="spinner-border text-primary mb-4" role="status"
+                            style="width: 4rem; height: 4rem; border-width: 0.3rem;"></div>
+                        <h3 class="fw-light">Selecting Winner...</h3>
                     </div>
 
                     <div id="winner-reveal-container" class="d-none w-100">
                         <div class="display-1 mb-4">🏆</div>
-                        <h5 class="text-muted text-uppercase letter-spacing-2">Winner #<span id="winner-index">1</span>
-                        </h5>
+                        <h5 class="text-muted text-uppercase fw-bold letter-spacing-2">Winner #<span
+                                id="winner-index">1</span></h5>
                         <h1 class="display-3 fw-bold text-white mb-2" id="winner-name">Name</h1>
-                        <p class="fs-4 text-info" id="winner-phone">Phone</p>
+                        <p class="fs-4 text-primary" id="winner-phone">Phone</p>
                     </div>
 
                     <div id="all-winners-list" class="d-none w-100 mt-4 text-start">
-                        <h4 class="text-center mb-3 text-warning">Log of Winners</h4>
-                        <ul class="list-group list-group-flush rounded" id="winners-ul">
-                        </ul>
-                        <div class="text-center mt-4">
-                            <button class="btn btn-light rounded-pill px-5 fw-bold" onclick="location.reload()">Close &
-                                View All</button>
+                        <h4 class="text-center mb-4 text-primary fw-bold">Draw Completed!</h4>
+                        <div class="list-group list-group-flush rounded-3 overflow-hidden shadow-sm" id="winners-ul"
+                            style="background: rgba(255,255,255,0.05)">
+                        </div>
+                        <div class="text-center mt-5">
+                            <button class="btn btn-primary rounded-pill px-5 py-2 fw-bold"
+                                onclick="location.reload()">DONE</button>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 
-    <%- include('../partials/footer') %>
+    <script>
+        async function handleDrawSubmit(e) {
+            e.preventDefault();
 
-        <script>
-            async function handleDrawSubmit(e) {
-                e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
 
-                const form = e.target;
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
+            // Close input modal
+            const startDrawModal = bootstrap.Modal.getInstance(document.getElementById('startDrawModal'));
+            startDrawModal.hide();
 
-                // Close input modal
-                const startDrawModal = bootstrap.Modal.getInstance(document.getElementById('startDrawModal'));
-                startDrawModal.hide();
+            // Open Suspense Modal
+            const suspenseModal = new bootstrap.Modal(document.getElementById('suspenseModal'));
+            suspenseModal.show();
 
-                // Open Suspense Modal
-                const suspenseModal = new bootstrap.Modal(document.getElementById('suspenseModal'));
-                suspenseModal.show();
-
-                const suspenseContainer = document.getElementById('suspense-container');
-                const winnerReveal = document.getElementById('winner-reveal-container');
-                const winnerNameEl = document.getElementById('winner-name');
-                const winnerPhoneEl = document.getElementById('winner-phone');
-                const winnerIndexEl = document.getElementById('winner-index');
-                const allWinnersList = document.getElementById('all-winners-list');
-                const winnersUl = document.getElementById('winners-ul');
+            const suspenseContainer = document.getElementById('suspense-container');
+            const winnerReveal = document.getElementById('winner-reveal-container');
+            const winnerNameEl = document.getElementById('winner-name');
+            const winnerPhoneEl = document.getElementById('winner-phone');
+            const winnerIndexEl = document.getElementById('winner-index');
+            const allWinnersList = document.getElementById('all-winners-list');
+            const winnersUl = document.getElementById('winners-ul');
 
 
-                try {
-                    const response = await fetch('/admin/draws/start', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
+            try {
+                const response = await fetch('/admin/draws/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
 
-                    const result = await response.json();
+                const result = await response.json();
 
-                    if (result.success && result.winners.length > 0) {
+                if (result.success && result.winners.length > 0) {
 
-                        const winners = result.winners;
+                    const winners = result.winners;
 
-                        // Iterate safely with delay
-                        for (let i = 0; i < winners.length; i++) {
-                            const winner = winners[i];
+                    // Iterate safely with delay
+                    for (let i = 0; i < winners.length; i++) {
+                        const winner = winners[i];
 
-                            // 1. Show Suspense (Spinner)
-                            suspenseContainer.classList.remove('d-none');
-                            winnerReveal.classList.add('d-none');
-
-                            // Wait for 5 seconds (suspense)
-                            await new Promise(r => setTimeout(r, 5000));
-
-                            // 2. Reveal Winner
-                            suspenseContainer.classList.add('d-none');
-                            winnerReveal.classList.remove('d-none');
-
-                            winnerIndexEl.innerText = i + 1;
-                            winnerNameEl.innerText = winner.winnerId.name;
-                            winnerPhoneEl.innerText = winner.winnerId.phone;
-
-                            // Add to log
-                            const li = document.createElement('li');
-                            li.className = 'list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center';
-                            li.innerHTML = `<span><span class="text-muted me-3">#${i + 1}</span> ${winner.winnerId.name}</span> <span class="badge bg-warning text-dark">Winner</span>`;
-                            winnersUl.appendChild(li);
-
-                            // Keep winner shown for a bit before next one, unless it's the last one
-                            if (i < winners.length - 1) {
-                                await new Promise(r => setTimeout(r, 4000)); // Show winner for 4s before next spin
-                            }
-                        }
-
-                        // 3. All Done
-                        await new Promise(r => setTimeout(r, 2000));
+                        // 1. Show Suspense (Spinner)
+                        suspenseContainer.classList.remove('d-none');
                         winnerReveal.classList.add('d-none');
-                        allWinnersList.classList.remove('d-none');
 
+                        // Wait for suspense
+                        await new Promise(r => setTimeout(r, 5000));
 
-                    } else {
-                        alert('Error: ' + (result.error || 'No winners returned'));
-                        location.reload();
+                        // 2. Reveal Winner
+                        suspenseContainer.classList.add('d-none');
+                        winnerReveal.classList.remove('d-none');
+
+                        winnerIndexEl.innerText = i + 1;
+                        winnerNameEl.innerText = winner.winnerId.name;
+                        winnerPhoneEl.innerText = winner.winnerId.phone;
+
+                        // Add to log
+                        const li = document.createElement('div');
+                        li.className = 'list-group-item bg-transparent text-white border-secondary p-3 d-flex justify-content-between align-items-center';
+                        li.innerHTML = `<span><span class="text-muted me-3">#${i + 1}</span> ${winner.winnerId.name}</span> <span class="badge bg-primary rounded-pill">Winner</span>`;
+                        winnersUl.appendChild(li);
+
+                        // Keep winner shown for a bit before next one, unless it's the last one
+                        if (i < winners.length - 1) {
+                            await new Promise(r => setTimeout(r, 4000));
+                        }
                     }
 
-                } catch (err) {
-                    console.error(err);
-                    alert('An error occurred');
+                    // 3. All Done
+                    await new Promise(r => setTimeout(r, 2000));
+                    winnerReveal.classList.add('d-none');
+                    allWinnersList.classList.remove('d-none');
+
+
+                } else {
+                    alert('Error: ' + (result.error || 'No winners returned'));
                     location.reload();
                 }
+
+            } catch (err) {
+                console.error(err);
+                alert('An error occurred');
+                location.reload();
             }
-        </script>
+        }
+    </script>
+
+    <%- include('../partials/footer') %>

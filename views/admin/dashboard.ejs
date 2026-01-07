@@ -1,97 +1,123 @@
 <%- include('../partials/header') %>
-    <div class="admin-wrapper admin-light-body">
+
+    <div class="admin-wrapper">
         <%- include('../partials/sidebar') %>
             <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-            <div class="admin-main-content">
-                <!-- Mobile Nav -->
-                <div class="admin-mobile-nav">
+            <div class="admin-main-content" id="mainContent">
+                <!-- Top Navbar -->
+                <nav class="admin-navbar d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <button class="btn p-0 me-3" onclick="toggleSidebar()">
-                            <i class="bi bi-list fs-3"></i>
+                        <button class="btn btn-outline-dark me-3 d-lg-block d-none" onclick="toggleDesktopSidebar()">
+                            <i class="bi bi-list"></i>
                         </button>
-                        <h5 class="mb-0 fw-bold">GMMS Admin</h5>
-                    </div>
-                    <div class="dropdown">
-                        <div class="rounded-circle bg-light-blue text-blue d-flex align-items-center justify-content-center"
-                            style="width: 35px; height: 35px;" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-fill"></i>
+                        <button class="btn btn-outline-dark me-3 d-lg-none" onclick="toggleSidebar()">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <div class="d-none d-md-block">
+                            <h5 class="mb-0 fw-bold">Dashboard</h5>
                         </div>
                     </div>
-                </div>
+
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="date-display text-muted small fw-medium d-none d-sm-block">
+                            <i class="bi bi-calendar3 me-2"></i>
+                            <%= new Date().toLocaleDateString('en-US', { weekday: 'short' , year: 'numeric' ,
+                                month: 'short' , day: 'numeric' }) %>
+                        </div>
+                        <div class="dropdown">
+                            <div class="rounded-circle bg-blue text-white d-flex align-items-center justify-content-center"
+                                style="width: 35px; height: 35px; cursor: pointer;" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item text-danger" href="/admin/logout"><i
+                                            class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
 
                 <div class="p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4 d-none d-lg-flex">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h2 class="text-blue fw-bold mb-0">Dashboard Overview</h2>
+                            <h2 class="fw-bold mb-0">Overview</h2>
                             <p class="text-muted small">System performance and active member metrics</p>
                         </div>
-                        <div class="date-display text-muted small fw-bold">
-                            <i class="bi bi-calendar3 me-2"></i>
-                            <%= new Date().toLocaleDateString('en-US', { weekday: 'long' , year: 'numeric' ,
-                                month: 'long' , day: 'numeric' }) %>
-                        </div>
+                        <a href="/admin/rounds" class="btn btn-primary px-4 rounded-pill">
+                            <i class="bi bi-wallet2 me-2"></i>Manage Rounds
+                        </a>
                     </div>
 
                     <!-- Stats Grid -->
                     <div class="row g-4 mb-4">
                         <div class="col-xl-3 col-md-6">
-                            <div class="admin-light-card admin-light-stats-card h-100">
+                            <div class="admin-card admin-stats-card">
+                                <div class="icon-box bg-blue-light text-blue">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
                                 <div class="lbl">Active Members</div>
                                 <div class="val">
                                     <%= stats.memberCount %>
                                 </div>
-                                <div class="small text-success mt-2">
-                                    <i class="bi bi-arrow-up-short"></i> Total active users
-                                </div>
+                                <div class="small text-muted">Total active users</div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
-                            <div class="admin-light-card admin-light-stats-card h-100"
-                                style="border-left-color: #ffc107;">
+                            <div class="admin-card admin-stats-card">
+                                <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                                    <i class="bi bi-hourglass-split"></i>
+                                </div>
                                 <div class="lbl">Pending Collections</div>
-                                <div class="val" style="color: #ffc107;">
+                                <div class="val">
                                     <%= stats.pendingPaymentsCount %>
                                 </div>
-                                <div class="small text-muted mt-2">Current round status</div>
+                                <div class="small text-muted">Current round status</div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
-                            <div class="admin-light-card admin-light-stats-card h-100"
-                                style="border-left-color: #28a745;">
+                            <div class="admin-card admin-stats-card">
+                                <div class="icon-box bg-success bg-opacity-10 text-success">
+                                    <i class="bi bi-dice-5-fill"></i>
+                                </div>
                                 <div class="lbl">Total Draws</div>
-                                <div class="val" style="color: #28a745;">
+                                <div class="val">
                                     <%= stats.totalDrawsCompleted %>
                                 </div>
-                                <div class="small text-muted mt-2">Historical luck draws</div>
+                                <div class="small text-muted">Historical luck draws</div>
                             </div>
                         </div>
                         <div class="col-xl-3 col-md-6">
-                            <div class="admin-light-card admin-light-stats-card h-100"
-                                style="border-left-color: #dc3545;">
-                                <div class="lbl">Total Collected</div>
-                                <div class="val" style="color: #dc3545;">₹<%= stats.totalPaidAmount %>
+                            <div class="admin-card admin-stats-card">
+                                <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                                    <i class="bi bi-currency-rupee"></i>
                                 </div>
-                                <div class="small text-muted mt-2">Overall collection</div>
+                                <div class="lbl">Total Collected</div>
+                                <div class="val">₹<%= (stats.totalPaidAmount || 0).toLocaleString() %>
+                                </div>
+                                <div class="small text-muted">Overall collection</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="row g-4">
                         <!-- Collections Overview -->
-                        <div class="col-md-7">
-                            <div class="admin-light-card h-100">
+                        <div class="col-lg-7">
+                            <div class="admin-table-container p-4">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h6 class="text-blue fw-bold mb-0">Active Round Overivew</h6>
-                                    <a href="/admin/rounds" class="btn btn-sm btn-light-blue text-blue fw-bold">View
-                                        Rounds</a>
+                                    <h5 class="fw-bold mb-0">Active Round Overview</h5>
+                                    <a href="/admin/rounds" class="btn btn-sm btn-outline-primary">View All</a>
                                 </div>
                                 <div class="table-responsive">
-                                    <table class="table admin-light-table mb-0">
+                                    <table class="table admin-table table-hover align-middle">
                                         <thead>
                                             <tr>
-                                                <th>Member</th>
-                                                <th>ID</th>
+                                                <th>Member Name</th>
+                                                <th>Member ID</th>
                                                 <th class="text-center">Status</th>
                                             </tr>
                                         </thead>
@@ -107,7 +133,7 @@
                                                     </td>
                                                     <td class="text-center">
                                                         <span
-                                                            class="badge <%= p.status === 'paid' ? 'bg-success' : 'bg-warning text-dark' %> rounded-pill px-3 py-1">
+                                                            class="badge <%= p.status === 'paid' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning' %> rounded-pill px-3 py-2">
                                                             <%= p.status.toUpperCase() %>
                                                         </span>
                                                     </td>
@@ -126,25 +152,25 @@
                         </div>
 
                         <!-- Recent Winners -->
-                        <div class="col-md-5">
-                            <div class="admin-light-card mb-4 bg-light-blue border-0 h-100">
-                                <h6 class="text-blue fw-bold mb-3">Recent Winners</h6>
+                        <div class="col-lg-5">
+                            <div class="admin-card">
+                                <h5 class="fw-bold mb-4">Recent Winners</h5>
                                 <% if (recentDraws && recentDraws.length> 0) { %>
                                     <% recentDraws.forEach(draw=> { %>
                                         <% if (draw) { %>
                                             <div
-                                                class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded-3 shadow-sm">
+                                                class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded-3">
                                                 <div class="d-flex align-items-center">
-                                                    <div class="rounded-circle bg-blue me-3"
-                                                        style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-                                                        <i class="bi bi-trophy-fill text-white"></i>
+                                                    <div class="rounded-circle bg-blue text-white me-3 d-flex align-items-center justify-content-center"
+                                                        style="width: 40px; height: 40px;">
+                                                        <i class="bi bi-trophy-fill"></i>
                                                     </div>
                                                     <div>
                                                         <div class="fw-bold">
                                                             <%= (draw.winnerId && draw.winnerId.name) ?
                                                                 draw.winnerId.name : 'Deleted Member' %>
                                                         </div>
-                                                        <div class="text-muted x-small">
+                                                        <div class="text-muted small">
                                                             <%= draw.drawDate ? draw.drawDate.toLocaleDateString()
                                                                 : 'Unknown Date' %>
                                                         </div>
@@ -166,4 +192,9 @@
                 </div>
             </div>
     </div>
+
+    <script>
+        // Inline functions removed - using global main.js
+    </script>
+
     <%- include('../partials/footer') %>

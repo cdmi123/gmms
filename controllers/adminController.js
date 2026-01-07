@@ -156,3 +156,16 @@ exports.deleteMember = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+exports.getReports = async (req, res) => {
+    try {
+        const rounds = await Round.find().sort({ roundNumber: 1 });
+        res.render('admin/reports', {
+            title: 'Financial Reports',
+            rounds
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server Error');
+    }
+};

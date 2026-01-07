@@ -35,6 +35,9 @@ router.post('/draws/start', isAdmin, drawController.postStartDraw);
 router.get('/stock', isAdmin, adminController.getStock);
 router.post('/stock/update', isAdmin, adminController.postUpdateStock);
 
+// Reports
+router.get('/reports', isAdmin, adminController.getReports);
+
 router.get('/logout', adminController.logout);
 
 module.exports = router;

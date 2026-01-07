@@ -1,34 +1,52 @@
 <%- include('../partials/header') %>
-    <div class="admin-wrapper admin-light-body">
+
+    <div class="admin-wrapper">
         <%- include('../partials/sidebar') %>
             <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-            <div class="admin-main-content">
-                <!-- Mobile Nav -->
-                <div class="admin-mobile-nav">
+            <div class="admin-main-content" id="mainContent">
+                <!-- Top Navbar -->
+                <nav class="admin-navbar d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center">
-                        <button class="btn p-0 me-3" onclick="toggleSidebar()">
-                            <i class="bi bi-list fs-3"></i>
+                        <button class="btn btn-outline-dark me-3 d-lg-block d-none" onclick="toggleDesktopSidebar()">
+                            <i class="bi bi-list"></i>
                         </button>
-                        <h5 class="mb-0 fw-bold">GMMS Admin</h5>
+                        <button class="btn btn-outline-dark me-3 d-lg-none" onclick="toggleSidebar()">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <div>
+                            <h5 class="mb-0 fw-bold">Settings</h5>
+                        </div>
                     </div>
-                </div>
+
+                    <div class="dropdown">
+                        <div class="rounded-circle bg-blue text-white d-flex align-items-center justify-content-center"
+                            style="width: 35px; height: 35px; cursor: pointer;" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-fill"></i>
+                        </div>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item text-danger" href="/admin/logout"><i
+                                        class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                </nav>
 
                 <div class="p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <h2 class="text-blue fw-bold mb-0">System Settings</h2>
+                            <h2 class="fw-bold mb-0">System Settings</h2>
                             <p class="text-muted small">Manage gold stock and system configurations</p>
                         </div>
                     </div>
 
-                    <div class="admin-light-card">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="text-blue fw-bold mb-0"><i class="bi bi-box-fill me-2"></i> Gold Inventory</h5>
-                        </div>
-
+                    <div class="admin-card">
+                        <h5 class="fw-bold mb-4"><i class="bi bi-box-fill me-2 text-primary"></i>Gold Inventory</h5>
                         <div class="table-responsive">
-                            <table class="table admin-light-table mb-0">
+                            <table class="table admin-table table-hover align-middle">
                                 <thead>
                                     <tr>
                                         <th>Item Type</th>
@@ -41,21 +59,26 @@
                                 <tbody>
                                     <% stocks.forEach(stock=> { %>
                                         <tr>
-                                            <td class="fw-bold text-blue">
-                                                <%= stock.itemName %>
+                                            <td>
+                                                <div class="fw-bold text-blue">
+                                                    <%= stock.itemName %>
+                                                </div>
                                             </td>
                                             <td>
-                                                <%= stock.quantity %> Units
+                                                <span class="badge bg-light text-dark px-3 py-2 border">
+                                                    <%= stock.quantity %> Units
+                                                </span>
                                             </td>
                                             <td class="fw-bold">
                                                 <%= stock.weight %>g
                                             </td>
                                             <td class="text-muted text-end small">
+                                                <i class="bi bi-clock-history me-1"></i>
                                                 <%= stock.updatedAt ? stock.updatedAt.toLocaleDateString() : 'N/A' %>
                                             </td>
                                             <td class="text-end">
-                                                <button class="btn btn-sm btn-outline-primary border-0"
-                                                    data-bs-toggle="modal" data-bs-target="#editStock<%= stock._id %>">
+                                                <button class="btn btn-sm btn-light border" data-bs-toggle="modal"
+                                                    data-bs-target="#editStock<%= stock._id %>">
                                                     <i class="bi bi-pencil-square"></i>
                                                 </button>
                                             </td>
@@ -68,31 +91,35 @@
                                                     <form action="/admin/stock/update" method="POST">
                                                         <input type="hidden" name="itemName"
                                                             value="<%= stock.itemName %>">
-                                                        <div class="modal-header bg-blue text-white">
-                                                            <h5 class="modal-title fw-bold">Update <%= stock.itemName %>
-                                                                    Stock</h5>
+                                                        <div class="modal-header bg-dark text-white p-4">
+                                                            <h5 class="modal-title fw-bold">Update Inventory</h5>
                                                             <button type="button" class="btn-close btn-close-white"
                                                                 data-bs-dismiss="modal"></button>
                                                         </div>
                                                         <div class="modal-body p-4">
+                                                            <div class="text-center mb-4">
+                                                                <h4 class="fw-bold text-primary">
+                                                                    <%= stock.itemName %>
+                                                                </h4>
+                                                            </div>
                                                             <div class="mb-4">
-                                                                <label class="form-label text-muted fw-bold">Total
-                                                                    Quantity</label>
-                                                                <input type="number" class="form-control"
+                                                                <label class="form-label fw-bold">Total Quantity</label>
+                                                                <input type="number" class="form-control py-2"
                                                                     name="quantity" value="<%= stock.quantity %>"
                                                                     required>
                                                             </div>
                                                             <div class="mb-2">
-                                                                <label class="form-label text-muted fw-bold">Total
-                                                                    Weight (grams)</label>
-                                                                <input type="number" step="0.01" class="form-control"
-                                                                    name="weight" value="<%= stock.weight %>" required>
+                                                                <label class="form-label fw-bold">Total Weight
+                                                                    (grams)</label>
+                                                                <input type="number" step="0.01"
+                                                                    class="form-control py-2" name="weight"
+                                                                    value="<%= stock.weight %>" required>
                                                             </div>
                                                         </div>
-                                                        <div class="modal-footer border-0">
+                                                        <div class="modal-footer border-0 p-4 pt-0">
                                                             <button type="button" class="btn btn-light px-4"
                                                                 data-bs-dismiss="modal">Cancel</button>
-                                                            <button type="submit" class="btn btn-blue px-4">Save
+                                                            <button type="submit" class="btn btn-primary px-4">Save
                                                                 Changes</button>
                                                         </div>
                                                     </form>
@@ -114,4 +141,5 @@
                 </div>
             </div>
     </div>
+
     <%- include('../partials/footer') %>
