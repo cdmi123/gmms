@@ -80,12 +80,6 @@ exports.postStartDraw = async (req, res) => {
         });
 
         // Return JSON for the frontend to handle the animation
-        // Include all active members for the shuffling animation
-        const allMembersForAnimation = activeMembers.map(m => ({
-            name: m.name,
-            phone: m.phone
-        }));
-
         res.json({ 
             success: true, 
             winners: successfulDraws,
