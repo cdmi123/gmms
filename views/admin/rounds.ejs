@@ -1,149 +1,172 @@
-<%- include('../partials/header') %>
+<%- include('../partials/admin-header') %>
 
-    <div class="admin-wrapper">
-        <%- include('../partials/sidebar') %>
-            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-            <div class="admin-main-content" id="mainContent">
-                <!-- Top Navbar -->
-                <nav class="admin-navbar d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-outline-dark me-3 d-lg-block d-none" onclick="toggleDesktopSidebar()">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <button class="btn btn-outline-dark me-3 d-lg-none" onclick="toggleSidebar()">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <div>
-                            <h5 class="mb-0 fw-bold">Collections</h5>
-                        </div>
+<div class="admin-wrapper">
+    <%- include('../partials/admin-sidebar') %>
+    
+    <div class="admin-main-content">
+        <nav class="admin-navbar">
+            <div class="navbar-left">
+                <button class="sidebar-toggle d-lg-none" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <button class="sidebar-toggle d-none d-lg-block" onclick="toggleDesktopSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h5 class="navbar-title d-none d-md-block">Collections</h5>
+            </div>
+            
+            <div class="navbar-right">
+                <div class="navbar-date d-none d-sm-block">
+                    <i class="bi bi-calendar3"></i>
+                    <span><%= new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) %></span>
+                </div>
+                <div class="navbar-user">
+                    <div class="user-avatar">
+                        <i class="bi bi-person-fill"></i>
                     </div>
-
-                    <div class="dropdown">
-                        <div class="rounded-circle bg-blue text-white d-flex align-items-center justify-content-center"
-                            style="width: 35px; height: 35px; cursor: pointer;" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item text-danger" href="/admin/logout"><i
-                                        class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-                        </ul>
-                    </div>
-                </nav>
-
-                <div class="p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h2 class="fw-bold mb-0">Manage Collections</h2>
-                            <p class="text-muted small">Manage payment rounds and collection status</p>
-                        </div>
-                        <button class="btn btn-primary px-4 rounded-pill shadow" data-bs-toggle="modal"
-                            data-bs-target="#createRoundModal">
-                            <i class="bi bi-plus-circle-fill me-2"></i>New Collection Round
-                        </button>
-                    </div>
-
-                    <div class="admin-table-container p-4">
-                        <div class="table-responsive">
-                            <table class="table admin-table table-hover align-middle">
-                                <thead>
-                                    <tr>
-                                        <th>Round #</th>
-                                        <th class="d-none d-md-table-cell">Target</th>
-                                        <th>Collected</th>
-                                        <th>Status</th>
-                                        <th class="text-end">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% rounds.forEach(round=> { %>
-                                        <tr>
-                                            <td>
-                                                <div class="fw-bold text-blue">Round <%= round.roundNumber %>
-                                                </div>
-                                            </td>
-                                            <td class="text-muted d-none d-md-table-cell">₹<%= (round.totalCollection -
-                                                    (round.extraAmount || 0)).toLocaleString() %>
-                                            </td>
-                                            <td class="text-primary fw-bold">₹<%= (round.totalCollection ||
-                                                    0).toLocaleString() %>
-                                            </td>
-                                            <td>
-                                                <span
-                                                    class="badge <%= round.status === 'completed' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning' %> rounded-pill px-3 py-2">
-                                                    <%= round.status.toUpperCase() %>
-                                                </span>
-                                            </td>
-                                            <td class="text-end">
-                                                <button class="btn btn-sm btn-light border" data-bs-toggle="modal"
-                                                    data-bs-target="#payModal<%= round._id %>">
-                                                    <i class="bi bi-cash-stack me-2"></i>View Payments
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="user-dropdown">
+                        <a href="#" class="dropdown-item">
+                            <i class="bi bi-person"></i>
+                            <span>Profile</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="/admin/logout" class="dropdown-item danger">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </a>
                     </div>
                 </div>
             </div>
-    </div>
+        </nav>
 
-    <!-- Modals for each round -->
-    <% rounds.forEach(round=> { %>
+        <div class="content-wrapper">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div>
+                        <h1 class="page-title">
+                            <i class="bi bi-cash-stack me-2 text-primary"></i>
+                            Manage Collections
+                        </h1>
+                        <p class="page-subtitle">Manage payment rounds and collection status</p>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRoundModal">
+                            <i class="bi bi-plus-circle-fill me-2"></i>
+                            New Collection Round
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Round #</th>
+                                <th class="d-none d-md-table-cell">Target</th>
+                                <th>Collected</th>
+                                <th>Status</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (rounds && rounds.length > 0) { %>
+                                <% rounds.forEach(round => { %>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold text-primary">Round <%= round.roundNumber %></div>
+                                            <small class="text-muted"><%= round.createdAt ? new Date(round.createdAt).toLocaleDateString() : '' %></small>
+                                        </td>
+                                        <td class="text-muted d-none d-md-table-cell">
+                                            ₹<%= (round.totalCollection - (round.extraAmount || 0)).toLocaleString() %>
+                                        </td>
+                                        <td class="text-primary fw-bold">
+                                            ₹<%= (round.totalCollection || 0).toLocaleString() %>
+                                        </td>
+                                        <td>
+                                            <span class="badge <%= round.status === 'completed' ? 'badge-success' : 'badge-warning' %>">
+                                                <%= round.status.toUpperCase() %>
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#payModal<%= round._id %>">
+                                                <i class="bi bi-cash-stack me-2"></i>
+                                                View Payments
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">
+                                                <i class="bi bi-wallet2"></i>
+                                            </div>
+                                            <div class="empty-state-title">No rounds found</div>
+                                            <div class="empty-state-text">Create a new collection round to get started</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modals for each round -->
+<% if (rounds) { %>
+    <% rounds.forEach(round => { %>
         <div class="modal fade" id="payModal<%= round._id %>" tabindex="-1">
             <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
-                    <div class="modal-header bg-dark text-white p-4">
-                        <h5 class="modal-title fw-bold">Round <%= round.roundNumber %> Payments</h5>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="bi bi-cash-stack me-2"></i>
+                            Round <%= round.roundNumber %> Payments
+                        </h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body p-0">
                         <div class="table-responsive">
-                            <table class="table admin-table table-hover align-middle mb-0">
-                                <thead class="bg-light">
+                            <table class="admin-table mb-0">
+                                <thead>
                                     <tr>
-                                        <th class="ps-4">Member</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th class="text-end pe-4">Action</th>
+                                        <th class="ps-4"><i class="bi bi-person me-1"></i>Member</th>
+                                        <th><i class="bi bi-currency-rupee me-1"></i>Amount</th>
+                                        <th><i class="bi bi-info-circle me-1"></i>Status</th>
+                                        <th class="text-end pe-4"><i class="bi bi-gear me-1"></i>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% payments.filter(p=> p.roundId.toString() ===
-                                        round._id.toString()).forEach(payment => { %>
+                                    <% payments.filter(p => p.roundId.toString() === round._id.toString()).forEach(payment => { %>
                                         <tr>
-                                            <td class="ps-4">
-                                                <div class="fw-bold text-blue">
-                                                    <%= payment.memberId.name %>
-                                                </div>
+                                            <td class="ps-4 fw-bold">
+                                                <%= payment.memberId ? payment.memberId.name : 'Deleted Member' %>
                                             </td>
-                                            <td class="text-muted">₹<%= payment.amount %>
-                                            </td>
+                                            <td class="text-muted">₹<%= payment.amount %></td>
                                             <td>
-                                                <span
-                                                    class="badge <%= payment.status === 'paid' ? 'bg-success bg-opacity-10 text-success' : 'bg-warning bg-opacity-10 text-warning' %> rounded-pill px-3 py-2">
+                                                <span class="badge <%= payment.status === 'paid' ? 'badge-success' : 'badge-warning' %>">
                                                     <%= payment.status.toUpperCase() %>
                                                 </span>
                                             </td>
                                             <td class="text-end pe-4">
-                                                <% if (payment.status==='pending' ) { %>
-                                                    <button onclick="adminMarkPaid('<%= payment._id %>', this)"
-                                                        class="btn btn-sm btn-primary rounded-pill px-4 py-1">Mark
-                                                        Paid</button>
-                                                    <% } else { %>
-                                                        <span class="text-success small fw-bold"><i
-                                                                class="bi bi-check-circle-fill me-1"></i>
-                                                            VERIFIED</span>
-                                                        <% } %>
+                                                <% if (payment.status === 'pending') { %>
+                                                    <button onclick="adminMarkPaid('<%= payment._id %>', this)" class="btn btn-sm btn-primary">
+                                                        Mark Paid
+                                                    </button>
+                                                <% } else { %>
+                                                    <span class="text-success small fw-bold">
+                                                        <i class="bi bi-check-circle-fill me-1"></i>VERIFIED
+                                                    </span>
+                                                <% } %>
                                             </td>
                                         </tr>
-                                        <% }) %>
+                                    <% }) %>
                                 </tbody>
                             </table>
                         </div>
@@ -151,72 +174,78 @@
                 </div>
             </div>
         </div>
-        <% }) %>
+    <% }) %>
+<% } %>
 
-            <!-- Create Round Modal -->
-            <div class="modal fade" id="createRoundModal" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow-lg">
-                        <form action="/admin/rounds/create" method="POST">
-                            <div class="modal-header bg-dark text-white p-4">
-                                <h5 class="modal-title fw-bold">Start New Collection Round</h5>
-                                <button type="button" class="btn-close btn-close-white"
-                                    data-bs-dismiss="modal"></button>
-                            </div>
-                            <div class="modal-body p-4">
-                                <div class="mb-4">
-                                    <label class="form-label fw-bold">Round Number</label>
-                                    <input type="number" class="form-control py-2" name="roundNumber"
-                                        value="<%= rounds.length + 1 %>" readonly>
-                                </div>
-                                <div class="mb-2">
-                                    <label class="form-label fw-bold">Target Collection (₹)</label>
-                                    <input type="number" class="form-control py-2" name="targetAmount"
-                                        placeholder="e.g. 5000" required>
-                                </div>
-                            </div>
-                            <div class="modal-footer border-0 p-4 pt-0">
-                                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary px-4 text-white">Initialize Round</button>
-                            </div>
-                        </form>
+<!-- Create Round Modal -->
+<div class="modal fade" id="createRoundModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Start New Collection Round
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/admin/rounds/create" method="POST">
+                <div class="modal-body">
+                    <div class="form-group mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-hash me-1"></i>Round Number
+                        </label>
+                        <input type="number" class="form-control" name="roundNumber" value="<%= rounds ? rounds.length + 1 : 1 %>" readonly>
+                    </div>
+                    <div class="form-group mb-2">
+                        <label class="form-label">
+                            <i class="bi bi-bullseye me-1"></i>Target Collection (₹)
+                        </label>
+                        <input type="number" class="form-control" name="targetAmount" placeholder="e.g. 5000" required>
+                        <small class="text-muted">Per member amount will be calculated automatically</small>
                     </div>
                 </div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Initialize Round</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-            <script>
-                async function adminMarkPaid(paymentId, btnElement) {
-                    const originalText = btnElement.innerHTML;
-                    btnElement.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
-                    btnElement.disabled = true;
+<script>
+    async function adminMarkPaid(paymentId, btnElement) {
+        const originalText = btnElement.innerHTML;
+        btnElement.innerHTML = '<span class="spinner"></span>';
+        btnElement.disabled = true;
 
-                    try {
-                        const response = await fetch('/user/api/pay', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ paymentId })
-                        });
+        try {
+            const response = await fetch('/user/api/pay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ paymentId })
+            });
 
-                        const result = await response.json();
-                        if (result.success) {
-                            const tr = btnElement.closest('tr');
-                            const statusTd = tr.children[2];
-                            const actionTd = tr.children[3];
+            const result = await response.json();
+            if (result.success) {
+                const tr = btnElement.closest('tr');
+                const statusTd = tr.children[2];
+                const actionTd = tr.children[3];
 
-                            statusTd.innerHTML = '<span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">PAID</span>';
-                            actionTd.innerHTML = '<span class="text-success small fw-bold"><i class="bi bi-check-circle-fill me-1"></i> VERIFIED</span>';
-                        } else {
-                            alert('Error: ' + (result.error || 'Failed to update'));
-                            btnElement.innerHTML = originalText;
-                            btnElement.disabled = false;
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        alert('Network Error');
-                        btnElement.innerHTML = originalText;
-                        btnElement.disabled = false;
-                    }
-                }
-            </script>
+                statusTd.innerHTML = '<span class="badge badge-success">PAID</span>';
+                actionTd.innerHTML = '<span class="text-success small fw-bold"><i class="bi bi-check-circle-fill me-1"></i> VERIFIED</span>';
+            } else {
+                alert('Error: ' + (result.error || 'Failed to update'));
+                btnElement.innerHTML = originalText;
+                btnElement.disabled = false;
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Network Error');
+            btnElement.innerHTML = originalText;
+            btnElement.disabled = false;
+        }
+    }
+</script>
 
-            <%- include('../partials/footer') %>
+<%- include('../partials/admin-footer') %>

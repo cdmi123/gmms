@@ -71,7 +71,17 @@ exports.postStartDraw = async (req, res) => {
         req.io.emit('drawReveal', { winners: successfulDraws });
 
         // Return JSON for the frontend to handle the animation
-        res.json({ success: true, winners: successfulDraws });
+        // Include all active members for the shuffling animation
+        const allMembersForAnimation = activeMembers.map(m => ({
+            name: m.name,
+            phone: m.phone
+        }));
+
+        res.json({ 
+            success: true, 
+            winners: successfulDraws,
+            allMembers: allMembersForAnimation
+        });
 
     } catch (err) {
         console.error(err);

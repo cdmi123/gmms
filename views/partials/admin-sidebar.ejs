@@ -1,0 +1,56 @@
+<nav class="admin-sidebar" id="adminSidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">
+            <div class="sidebar-logo-icon">
+                <i class="bi bi-gem"></i>
+            </div>
+            <div class="sidebar-logo-text">
+                <h4>GMMS</h4>
+                <small>Admin Panel</small>
+            </div>
+        </div>
+        <button class="sidebar-close d-lg-none" onclick="toggleSidebar()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-nav">
+        <a href="/admin/dashboard" class="sidebar-nav-item <%= title === 'Admin Dashboard' ? 'active' : '' %>">
+            <i class="bi bi-grid-3x3-gap-fill"></i>
+            <span>Dashboard</span>
+        </a>
+        <a href="/admin/members" class="sidebar-nav-item <%= title === 'Manage Members' ? 'active' : '' %>">
+            <i class="bi bi-people-fill"></i>
+            <span>Members</span>
+        </a>
+        <a href="/admin/rounds" class="sidebar-nav-item <%= title === 'Manage Rounds' ? 'active' : '' %>">
+            <i class="bi bi-cash-stack"></i>
+            <span>Rounds & Payments</span>
+        </a>
+        <a href="/admin/draws" class="sidebar-nav-item <%= title === 'Lucky Draws' ? 'active' : '' %>">
+            <i class="bi bi-dice-5-fill"></i>
+            <span>Lucky Draws</span>
+        </a>
+        <a href="/admin/stock" class="sidebar-nav-item <%= title === 'Manage Stock' ? 'active' : '' %>">
+            <i class="bi bi-box-seam-fill"></i>
+            <span>Stock & Settings</span>
+        </a>
+        
+        <div class="sidebar-divider"></div>
+        
+        <a href="/admin/reports" class="sidebar-nav-item <%= title === 'Financial Reports' ? 'active' : '' %>">
+            <i class="bi bi-file-earmark-bar-graph-fill"></i>
+            <span>Reports</span>
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="/admin/logout" class="sidebar-footer-link">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Logout</span>
+        </a>
+    </div>
+</nav>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+

@@ -1,0 +1,67 @@
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/main.js"></script>
+<script>
+    // Enhanced sidebar toggle
+    function toggleSidebar() {
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        if (sidebar) {
+            sidebar.classList.toggle('show');
+        }
+        if (overlay) {
+            overlay.classList.toggle('active');
+        }
+    }
+
+    function toggleDesktopSidebar() {
+        const sidebar = document.getElementById('adminSidebar');
+        const mainContent = document.querySelector('.admin-main-content');
+        
+        if (window.innerWidth >= 1024) {
+            if (sidebar) {
+                sidebar.style.transform = sidebar.style.transform === 'translateX(-100%)' 
+                    ? 'translateX(0)' 
+                    : 'translateX(-100%)';
+            }
+            if (mainContent) {
+                mainContent.style.marginLeft = mainContent.style.marginLeft === '0px' 
+                    ? '240px' 
+                    : '0px';
+            }
+        }
+    }
+
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('adminSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        
+        if (window.innerWidth < 1024) {
+            if (overlay && overlay.contains(event.target) && overlay.classList.contains('active')) {
+                toggleSidebar();
+            }
+        }
+    });
+
+    // User dropdown toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const userAvatar = document.querySelector('.user-avatar');
+        const userDropdown = document.querySelector('.user-dropdown');
+        
+        if (userAvatar && userDropdown) {
+            userAvatar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+            
+            document.addEventListener('click', function() {
+                userDropdown.classList.remove('show');
+            });
+        }
+    });
+</script>
+</body>
+</html>
+

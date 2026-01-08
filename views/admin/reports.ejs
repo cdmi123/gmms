@@ -1,155 +1,177 @@
-<%- include('../partials/header') %>
+<%- include('../partials/admin-header') %>
 
-    <div class="admin-wrapper">
-        <%- include('../partials/sidebar') %>
-            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-            <div class="admin-main-content" id="mainContent">
-                <!-- Top Navbar -->
-                <nav class="admin-navbar d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <button class="btn btn-outline-dark me-3 d-lg-block d-none" onclick="toggleDesktopSidebar()">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <button class="btn btn-outline-dark me-3 d-lg-none" onclick="toggleSidebar()">
-                            <i class="bi bi-list"></i>
-                        </button>
-                        <div>
-                            <h5 class="mb-0 fw-bold">Reports</h5>
-                        </div>
+<div class="admin-wrapper">
+    <%- include('../partials/admin-sidebar') %>
+    
+    <div class="admin-main-content">
+        <nav class="admin-navbar">
+            <div class="navbar-left">
+                <button class="sidebar-toggle d-lg-none" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <button class="sidebar-toggle d-none d-lg-block" onclick="toggleDesktopSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h5 class="navbar-title d-none d-md-block">Reports</h5>
+            </div>
+            
+            <div class="navbar-right">
+                <div class="navbar-date d-none d-sm-block">
+                    <i class="bi bi-calendar3"></i>
+                    <span><%= new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) %></span>
+                </div>
+                <div class="navbar-user">
+                    <div class="user-avatar">
+                        <i class="bi bi-person-fill"></i>
                     </div>
-
-                    <div class="dropdown">
-                        <div class="rounded-circle bg-blue text-white d-flex align-items-center justify-content-center"
-                            style="width: 35px; height: 35px; cursor: pointer;" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item text-danger" href="/admin/logout"><i
-                                        class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
-                        </ul>
-                    </div>
-                </nav>
-
-                <div class="p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div>
-                            <h2 class="fw-bold mb-0">Financial Reports</h2>
-                            <p class="text-muted small">Analyze round-wise collection and carry-forward history</p>
-                        </div>
-                        <button class="btn btn-outline-primary px-4 rounded-pill" onclick="window.print()">
-                            <i class="bi bi-printer me-2"></i>Print Report
-                        </button>
-                    </div>
-
-                    <div class="admin-table-container p-4">
-                        <div class="table-responsive">
-                            <table class="table admin-table table-hover align-middle">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th>Round #</th>
-                                        <th class="text-center">Previous Carry (In)</th>
-                                        <th class="text-center">Collected Amount</th>
-                                        <th class="text-center">Extra / Carry (Out)</th>
-                                        <th class="text-end">Final Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% rounds.forEach(round=> { %>
-                                        <tr>
-                                            <td>
-                                                <div class="fw-bold text-blue">Round <%= round.roundNumber %>
-                                                </div>
-                                                <div class="x-small text-muted">
-                                                    <%= round.createdAt.toLocaleDateString() %>
-                                                </div>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="text-success">+ ₹<%= (round.carryForwardFromPrevious ||
-                                                        0).toLocaleString() %></span>
-                                            </td>
-                                            <td class="text-center fw-bold">
-                                                ₹<%= (round.totalCollection || 0).toLocaleString() %>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="text-danger">- ₹<%= (round.extraAmount ||
-                                                        0).toLocaleString() %></span>
-                                            </td>
-                                            <td class="text-end fw-bold">
-                                                <span class="badge bg-blue bg-opacity-10 text-blue fs-6 px-3">
-                                                    ₹<%= (round.totalCollection - (round.extraAmount || 0) +
-                                                        (round.carryForwardFromPrevious || 0)).toLocaleString() %>
-                                                </span>
-                                            </td>
-                                        </tr>
-                                        <% }) %>
-                                            <% if (rounds.length===0) { %>
-                                                <tr>
-                                                    <td colspan="5" class="text-center text-muted py-5">No reports
-                                                        available.</td>
-                                                </tr>
-                                                <% } %>
-                                </tbody>
-                                <tfoot class="bg-light fw-bold">
-                                    <tr>
-                                        <td>Grand Total</td>
-                                        <td class="text-center">-</td>
-                                        <td class="text-center">₹<%= rounds.reduce((sum, r)=> sum + (r.totalCollection
-                                                || 0), 0).toLocaleString() %></td>
-                                        <td class="text-center">₹<%= rounds.reduce((sum, r)=> sum + (r.extraAmount ||
-                                                0), 0).toLocaleString() %></td>
-                                        <td class="text-end">₹<%= rounds.reduce((sum, r)=> sum + (r.totalCollection -
-                                                (r.extraAmount || 0) + (r.carryForwardFromPrevious || 0)),
-                                                0).toLocaleString() %></td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="admin-card text-center p-4">
-                                <div class="text-muted small mb-1">Total Savings (Extra Collection)</div>
-                                <h2 class="fw-bold text-success">₹<%= rounds.reduce((sum, r)=> sum + (r.extraAmount ||
-                                        0), 0).toLocaleString() %></h2>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="admin-card text-center p-4">
-                                <div class="text-muted small mb-1">Current Pot Value</div>
-                                <h2 class="fw-bold text-blue">₹<%= rounds.reduce((sum, r)=> sum + (r.totalCollection ||
-                                        0), 0).toLocaleString() %></h2>
-                            </div>
-                        </div>
+                    <div class="user-dropdown">
+                        <a href="#" class="dropdown-item">
+                            <i class="bi bi-person"></i>
+                            <span>Profile</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="/admin/logout" class="dropdown-item danger">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </a>
                     </div>
                 </div>
             </div>
+        </nav>
+
+        <div class="content-wrapper">
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                    <div>
+                        <h1 class="page-title">Financial Reports</h1>
+                        <p class="page-subtitle">Analyze round-wise collection and carry-forward history</p>
+                    </div>
+                    <div class="page-actions">
+                        <button class="btn btn-secondary" onclick="window.print()">
+                            <i class="bi bi-printer me-2"></i>
+                            Print Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Round #</th>
+                                <th class="text-center">Previous Carry (In)</th>
+                                <th class="text-center">Collected Amount</th>
+                                <th class="text-center">Extra / Carry (Out)</th>
+                                <th class="text-end">Final Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (rounds && rounds.length > 0) { %>
+                                <% rounds.forEach(round => { %>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold text-primary">Round <%= round.roundNumber %></div>
+                                            <div class="small text-muted">
+                                                <%= round.createdAt ? new Date(round.createdAt).toLocaleDateString() : '' %>
+                                            </div>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="text-success">+ ₹<%= (round.carryForwardFromPrevious || 0).toLocaleString() %></span>
+                                        </td>
+                                        <td class="text-center fw-bold">
+                                            ₹<%= (round.totalCollection || 0).toLocaleString() %>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="text-danger">- ₹<%= (round.extraAmount || 0).toLocaleString() %></span>
+                                        </td>
+                                        <td class="text-end fw-bold">
+                                            <span class="badge badge-primary">
+                                                ₹<%= (round.totalCollection - (round.extraAmount || 0) + (round.carryForwardFromPrevious || 0)).toLocaleString() %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="5" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon">
+                                                <i class="bi bi-file-earmark-bar-graph"></i>
+                                            </div>
+                                            <div class="empty-state-title">No reports available</div>
+                                            <div class="empty-state-text">Create rounds to generate reports</div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                        <% if (rounds && rounds.length > 0) { %>
+                            <tfoot style="background: var(--bg-tertiary); font-weight: 700;">
+                                <tr>
+                                    <td>Grand Total</td>
+                                    <td class="text-center">-</td>
+                                    <td class="text-center">₹<%= rounds.reduce((sum, r) => sum + (r.totalCollection || 0), 0).toLocaleString() %></td>
+                                    <td class="text-center">₹<%= rounds.reduce((sum, r) => sum + (r.extraAmount || 0), 0).toLocaleString() %></td>
+                                    <td class="text-end">₹<%= rounds.reduce((sum, r) => sum + (r.totalCollection - (r.extraAmount || 0) + (r.carryForwardFromPrevious || 0)), 0).toLocaleString() %></td>
+                                </tr>
+                            </tfoot>
+                        <% } %>
+                    </table>
+                </div>
+            </div>
+
+            <div class="row g-4 mt-4">
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #d1fae5; color: #10b981;">
+                            <i class="bi bi-piggy-bank-fill"></i>
+                        </div>
+                        <div class="stat-label">Total Savings (Extra Collection)</div>
+                        <div class="stat-value text-success">
+                            ₹<%= rounds ? rounds.reduce((sum, r) => sum + (r.extraAmount || 0), 0).toLocaleString() : '0' %>
+                        </div>
+                        <div class="stat-description">Accumulated extra amounts</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: #dbeafe; color: #2563eb;">
+                            <i class="bi bi-wallet2-fill"></i>
+                        </div>
+                        <div class="stat-label">Current Pot Value</div>
+                        <div class="stat-value text-primary">
+                            ₹<%= rounds ? rounds.reduce((sum, r) => sum + (r.totalCollection || 0), 0).toLocaleString() : '0' %>
+                        </div>
+                        <div class="stat-description">Total collection across all rounds</div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <style>
-        @media print {
-
-            #adminSidebar,
-            .admin-navbar,
-            .sidebar-overlay,
-            .btn-outline-primary {
-                display: none !important;
-            }
-
-            .admin-main-content {
-                margin-left: 0 !important;
-                padding: 0 !important;
-            }
-
-            .admin-table-container {
-                border: none !important;
-            }
+<style>
+    @media print {
+        #adminSidebar,
+        .admin-navbar,
+        .sidebar-overlay,
+        .page-actions,
+        .btn {
+            display: none !important;
         }
-    </style>
 
-    <%- include('../partials/footer') %>
+        .admin-main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+
+        .table-container {
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
+</style>
+
+<%- include('../partials/admin-footer') %>
