@@ -68,7 +68,16 @@ exports.postStartDraw = async (req, res) => {
         // Populate winner names for the response
         const successfulDraws = await Draw.find({ _id: { $in: savedDraws.map(d => d._id) } }).populate('winnerId');
 
-        req.io.emit('drawReveal', { winners: successfulDraws });
+        // Include all active members for the shuffling animation
+        const allMembersForAnimation = activeMembers.map(m => ({
+            name: m.name,
+            phone: m.phone
+        }));
+
+        req.io.emit('drawReveal', { 
+            winners: successfulDraws,
+            allMembers: allMembersForAnimation
+        });
 
         // Return JSON for the frontend to handle the animation
         // Include all active members for the shuffling animation

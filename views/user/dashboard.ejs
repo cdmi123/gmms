@@ -277,8 +277,11 @@
                         <div class="spinner-border text-gold mb-5" role="status"
                             style="width: 6rem; height: 6rem; --bs-spinner-border-width: 0.5rem;"></div>
                         <h1
-                            class="display-4 text-white fw-bold animate__animated animate__pulse animate__infinite ls-2">
+                            class="display-4 text-white fw-bold animate__animated animate__pulse animate__infinite ls-2 mb-4">
                             CHOOSING<br><span class="text-gold">WINNER</span></h1>
+                        <div id="user-name-shuffle" class="display-3 text-gold fw-bold" style="min-height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <span id="shuffling-name">...</span>
+                        </div>
                     </div>
 
                     <div id="user-winner-reveal-container" class="d-none w-100 position-relative">
@@ -303,7 +306,7 @@
                         </ul>
                         <div class="text-center mt-5">
                             <button class="btn btn-gold btn-lg rounded-pill px-5 fw-bold shadow-lg text-dark"
-                                onclick="location.reload()">
+                                onclick="closeCelebrationModal()">
                                 <i class="bi bi-arrow-repeat me-2"></i> CONTINUE
                             </button>
                         </div>
@@ -369,20 +372,260 @@
             socket.on('drawReveal', async (data) => {
                 console.log('🎉 Draw Reveal Triggered:', data);
                 if (data.winners && data.winners.length > 0) {
-                    startCelebrationSequence(data.winners);
+                    // Update dashboard first, then show celebration
+                    await handleDashboardUpdate({ type: 'drawUpdate' });
+                    startCelebrationSequence(data);
                 }
             });
         }
 
         async function handleDashboardUpdate(data) {
-            // Reload page to fetch fresh EJS render data for simplicity in this redesign
-            // Or implement a full DOM update function like before if smooth refresh is preferred.
-            // Given the complex structure change, a reload is safer to ensure consistency unless specific granular updates are rewritten.
-            // For now, let's try to update key elements to avoid flash, but fallback to reload if complex.
-            location.reload();
+            try {
+                // Fetch fresh data from API
+                const response = await fetch('/user/api/dashboard-data');
+                const dashboardData = await response.json();
+                
+                // Update stats
+                if (dashboardData.stats) {
+                    const stats = dashboardData.stats;
+                    
+                    // Update collection amount (desktop left panel)
+                    const collectionEl = document.getElementById('stat-col-1');
+                    if (collectionEl) {
+                        collectionEl.textContent = `₹${stats.totalCollectionAmount.toLocaleString()}`;
+                    }
+                    
+                    // Update paid members count (desktop left panel)
+                    const paidEl = document.getElementById('stat-pd-1');
+                    if (paidEl) {
+                        paidEl.textContent = `${stats.paidCount} / ${stats.totalMembers}`;
+                    }
+                    
+                    // Update mobile inline stats
+                    const mobileStats = document.querySelectorAll('.bg-white-10');
+                    mobileStats.forEach(statBox => {
+                        const text = statBox.textContent.toLowerCase();
+                        const strongEl = statBox.querySelector('strong');
+                        if (strongEl) {
+                            if (text.includes('collection')) {
+                                strongEl.textContent = `₹${stats.totalCollectionAmount.toLocaleString()}`;
+                            } else if (text.includes('paid')) {
+                                strongEl.textContent = `₹${stats.totalPaidAmount.toLocaleString()}`;
+                            }
+                        }
+                    });
+                    
+                    // Update mobile stats section
+                    const mobileStatsSection = document.querySelectorAll('#section-stats .list-group-item');
+                    mobileStatsSection.forEach(item => {
+                        const text = item.textContent.toLowerCase();
+                        const goldSpan = item.querySelector('.text-gold');
+                        if (goldSpan) {
+                            if (text.includes('total collection')) {
+                                goldSpan.textContent = `₹${stats.totalCollectionAmount.toLocaleString()}`;
+                            } else if (text.includes('total paid amount')) {
+                                goldSpan.textContent = `₹${stats.totalPaidAmount.toLocaleString()}`;
+                            } else if (text.includes('per member')) {
+                                goldSpan.textContent = `₹${stats.perMemberAmount.toLocaleString()}`;
+                            }
+                        }
+                    });
+                    
+                    // Update round badge
+                    if (dashboardData.activeRound) {
+                        const roundBadge = document.querySelector('.round-badge');
+                        if (roundBadge) {
+                            roundBadge.textContent = `Round ${dashboardData.activeRound.roundNumber}`;
+                        }
+                    }
+                    
+                    // Update draw counter
+                    const drawCounter = document.querySelector('.draw-counter-badge span');
+                    if (drawCounter) {
+                        drawCounter.textContent = `Draw ${stats.totalDrawsInRound} of 3`;
+                    }
+                }
+                
+                // Update winner card
+                if (dashboardData.currentDraw) {
+                    const draw = dashboardData.currentDraw;
+                    const winnerCard = document.querySelector('.winner-main-card');
+                    
+                    if (winnerCard && draw.winnerId) {
+                        const winnerNameEl = winnerCard.querySelector('.winner-name-lg');
+                        const winnerPhoneEl = winnerCard.querySelector('.winner-id-lg');
+                        const goldAmountEl = winnerCard.querySelector('.gold-amount-tag');
+                        const drawCounterEl = winnerCard.querySelector('.draw-counter-badge span');
+                        
+                        if (winnerNameEl) winnerNameEl.textContent = draw.winnerId.name;
+                        if (winnerPhoneEl) winnerPhoneEl.textContent = draw.winnerId.phone;
+                        if (goldAmountEl) goldAmountEl.textContent = `${draw.goldWeight}g PURE GOLD`;
+                        if (drawCounterEl && dashboardData.stats) {
+                            drawCounterEl.textContent = `Draw ${dashboardData.stats.totalDrawsInRound} of 3`;
+                        }
+                        
+                        // Show winner content, hide waiting
+                        const winnerContent = winnerCard.querySelector('.winner-content');
+                        const waitingContent = winnerCard.querySelector('.waiting-content');
+                        if (winnerContent) winnerContent.classList.remove('d-none');
+                        if (waitingContent) waitingContent.classList.add('d-none');
+                    }
+                } else {
+                    // No current draw - show waiting
+                    const winnerCard = document.querySelector('.winner-main-card');
+                    if (winnerCard) {
+                        const winnerContent = winnerCard.querySelector('.winner-content');
+                        const waitingContent = winnerCard.querySelector('.waiting-content');
+                        if (winnerContent) winnerContent.classList.add('d-none');
+                        if (waitingContent) waitingContent.classList.remove('d-none');
+                    }
+                }
+                
+                // Update header last winner
+                if (dashboardData.currentDraw && dashboardData.currentDraw.winnerId) {
+                    const headerStats = document.querySelectorAll('.h-stat-box');
+                    headerStats.forEach(box => {
+                        if (box.textContent.includes('Last Winner')) {
+                            const valEl = box.querySelector('.val');
+                            if (valEl) {
+                                valEl.textContent = dashboardData.currentDraw.winnerId.name;
+                            }
+                        }
+                    });
+                } else {
+                    // No current draw
+                    const headerStats = document.querySelectorAll('.h-stat-box');
+                    headerStats.forEach(box => {
+                        if (box.textContent.includes('Last Winner')) {
+                            const valEl = box.querySelector('.val');
+                            if (valEl) {
+                                valEl.textContent = 'Waiting...';
+                            }
+                        }
+                    });
+                }
+                
+                // Update stock in header
+                if (dashboardData.stocks && dashboardData.stocks.length > 0) {
+                    const headerStats = document.querySelectorAll('.h-stat-box');
+                    headerStats.forEach(box => {
+                        if (box.textContent.includes('Stock')) {
+                            const valEl = box.querySelector('.val');
+                            if (valEl) {
+                                valEl.textContent = dashboardData.stocks.map(s => `${s.quantity}x ${s.weight}g`).join(' ');
+                            }
+                        }
+                    });
+                }
+                
+                // Update payment list
+                if (dashboardData.payments) {
+                    updatePaymentList(dashboardData.payments);
+                }
+                
+                // Update history
+                if (dashboardData.recentDraws) {
+                    updateHistoryList(dashboardData.recentDraws);
+                }
+                
+                // Update mobile stories bar
+                if (dashboardData.recentDraws) {
+                    updateStoriesBar(dashboardData.recentDraws);
+                }
+                
+            } catch (error) {
+                console.error('Error updating dashboard:', error);
+                // Fallback to reload if update fails
+                location.reload();
+            }
+        }
+        
+        function updatePaymentList(payments) {
+            // Update desktop payment list
+            const paymentList = document.querySelector('.mini-payment-list');
+            if (paymentList) {
+                paymentList.innerHTML = '';
+                payments.slice(0, 10).forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'd-flex justify-content-between align-items-center mb-2 p-2 rounded bg-white-05';
+                    div.innerHTML = `
+                        <span class="small text-white">${p.memberId.name.split(' ')[0]}</span>
+                        <span class="badge ${p.status === 'paid' ? 'bg-success' : 'bg-warning text-dark'} rounded-pill scale-75">${p.status}</span>
+                    `;
+                    paymentList.appendChild(div);
+                });
+            }
+            
+            // Update mobile payment list
+            const mobilePayList = document.querySelector('.mobile-pay-list');
+            if (mobilePayList) {
+                mobilePayList.innerHTML = '';
+                payments.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'd-flex justify-content-between py-2 border-bottom border-white-10';
+                    div.innerHTML = `
+                        <span class="text-white-50">${p.memberId.name}</span>
+                        <span class="${p.status === 'paid' ? 'text-success' : 'text-warning'}">${p.status.toUpperCase()}</span>
+                    `;
+                    mobilePayList.appendChild(div);
+                });
+            }
+        }
+        
+        function updateHistoryList(draws) {
+            const historyList = document.querySelector('.matches-list');
+            if (historyList) {
+                historyList.innerHTML = '';
+                if (draws.length > 0) {
+                    draws.forEach((draw, i) => {
+                        const drawDate = new Date(draw.drawDate);
+                        const div = document.createElement('div');
+                        div.className = 'match-card mb-3 animate-up';
+                        div.style.animationDelay = `${i * 0.1}s`;
+                        div.innerHTML = `
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="m-date">
+                                    <span class="d-block fw-bold display-6 text-white-50">${drawDate.getDate()}</span>
+                                    <small class="text-uppercase">${drawDate.toLocaleString('default', { month: 'short' })}</small>
+                                </div>
+                                <div class="m-info border-start border-white-10 ps-3">
+                                    <h6 class="text-white m-0">${draw.winnerId.name}</h6>
+                                    <small class="text-gold">${draw.goldWeight}g Gold Prize</small>
+                                </div>
+                            </div>
+                        `;
+                        historyList.appendChild(div);
+                    });
+                } else {
+                    historyList.innerHTML = '<div class="text-center text-white-50 py-5">No history yet</div>';
+                }
+            }
+        }
+        
+        function updateStoriesBar(draws) {
+            const storiesBar = document.querySelector('.mobile-stories-bar');
+            if (storiesBar) {
+                const existingStories = storiesBar.querySelectorAll('.story-circle:not(:first-child)');
+                existingStories.forEach(s => s.remove());
+                
+                draws.slice(0, 10).forEach(d => {
+                    const circle = document.createElement('div');
+                    circle.className = 'story-circle';
+                    circle.innerHTML = `
+                        <div class="ring"><img src="/images/gold_biscuits.png" alt="Winner"></div>
+                        <span>${d.winnerId.name.split(' ')[0]}</span>
+                    `;
+                    storiesBar.appendChild(circle);
+                });
+            }
         }
 
-        async function startCelebrationSequence(winners) {
+        async function startCelebrationSequence(data) {
+            const winners = data.winners || [];
+            const allMembers = data.allMembers || [];
+            
+            if (winners.length === 0) return;
+            
             const celebrationModal = new bootstrap.Modal(document.getElementById('celebrationModal'));
             const suspenseContainer = document.getElementById('user-suspense-container');
             const winnerReveal = document.getElementById('user-winner-reveal-container');
@@ -391,17 +634,32 @@
             const winnerIndexEl = document.getElementById('u-winner-index');
             const allWinnersList = document.getElementById('user-all-winners-list');
             const winnersUl = document.getElementById('u-winners-ul');
+            const shufflingNameEl = document.getElementById('shuffling-name');
+
+            // Reset modal state
+            suspenseContainer.classList.remove('d-none');
+            winnerReveal.classList.add('d-none');
+            allWinnersList.classList.add('d-none');
+            winnersUl.innerHTML = '';
 
             celebrationModal.show();
 
             for (let i = 0; i < winners.length; i++) {
                 const winner = winners[i];
 
+                // Show suspense with name shuffling
                 suspenseContainer.classList.remove('d-none');
                 winnerReveal.classList.add('d-none');
+                allWinnersList.classList.add('d-none');
 
-                await new Promise(r => setTimeout(r, 5000));
+                // Name shuffling animation for 5 seconds
+                if (allMembers.length > 0 && shufflingNameEl) {
+                    await shuffleNames(allMembers, shufflingNameEl, 5000);
+                } else {
+                    await new Promise(r => setTimeout(r, 5000));
+                }
 
+                // Reveal winner
                 suspenseContainer.classList.add('d-none');
                 winnerReveal.classList.remove('d-none');
 
@@ -411,17 +669,43 @@
 
                 fireConfetti();
 
+                // Add to winners list
                 const li = document.createElement('li');
                 li.className = 'list-group-item bg-black-50 text-white border-gold-50 d-flex justify-content-between align-items-center mb-3 rounded p-3';
                 li.innerHTML = `<span class="fs-4 fw-bold"><span class="text-gold me-3">#${i + 1}</span> ${winner.winnerId.name}</span> <i class="bi bi-gem text-gold"></i>`;
                 winnersUl.appendChild(li);
 
+                // Wait before next winner
                 await new Promise(r => setTimeout(r, 5000));
             }
 
+            // Show all winners list
             winnerReveal.classList.add('d-none');
             allWinnersList.classList.remove('d-none');
             fireConfetti();
+        }
+        
+        async function shuffleNames(members, element, duration) {
+            const startTime = Date.now();
+            const interval = 50; // Update every 50ms for smooth animation
+            
+            return new Promise((resolve) => {
+                const shuffleInterval = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    
+                    if (elapsed >= duration) {
+                        clearInterval(shuffleInterval);
+                        // Show the actual winner name at the end (will be set by caller)
+                        resolve();
+                    } else {
+                        // Pick a random member to display
+                        const randomMember = members[Math.floor(Math.random() * members.length)];
+                        if (element && randomMember) {
+                            element.textContent = randomMember.name;
+                        }
+                    }
+                }, interval);
+            });
         }
 
         function fireConfetti() {
@@ -438,6 +722,15 @@
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
+        }
+        
+        async function closeCelebrationModal() {
+            const celebrationModal = bootstrap.Modal.getInstance(document.getElementById('celebrationModal'));
+            if (celebrationModal) {
+                celebrationModal.hide();
+            }
+            // Update dashboard after closing modal
+            await handleDashboardUpdate({ type: 'refresh' });
         }
     </script>
 </body>
